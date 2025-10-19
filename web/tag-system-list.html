@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>标签体系管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        success: '#36D399',
+                        warning: '#FBBD23',
+                        error: '#F87272',
+                        neutral: {
+                            100: '#F3F4F6',
+                            200: '#E5E7EB',
+                            300: '#D1D5DB',
+                            400: '#9CA3AF',
+                            500: '#6B7280',
+                            600: '#4B5563',
+                            700: '#374151',
+                            800: '#1F2937',
+                            900: '#111827',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto { content-visibility: auto; }
+            .card-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
+            .system-card:hover { 
+                transform: translateY(-2px); 
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); 
+            }
+            .system-card { 
+                transition: all 0.3s ease; 
+                cursor: pointer; 
+            }
+        }
+    </style>
+</head>
+<body class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white border-b border-neutral-200 sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- 系统标识 -->
+                <div class="flex items-center">
+                    <i class="fa fa-cogs text-primary text-2xl mr-2"></i>
+                    <span class="text-xl font-semibold text-neutral-800">标签体系管理系统</span>
+                </div>
+                
+                <!-- 功能导航 -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-primary font-medium border-b-2 border-primary py-5">标签体系</a>
+                    <a href="#" class="text-neutral-600 hover:text-primary py-5 transition-colors">系统设置</a>
+                </nav>
+                
+                <!-- 用户信息 -->
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 rounded-full text-neutral-600 hover:bg-neutral-100 transition-colors">
+                        <i class="fa fa-bell-o"></i>
+                    </button>
+                    <div class="flex items-center">
+                        <img src="https://picsum.photos/id/1005/200/200" alt="用户头像" class="h-8 w-8 rounded-full object-cover">
+                        <span class="ml-2 text-sm font-medium hidden sm:block">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- 页面标题和操作 -->
+        <div class="mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-neutral-800">标签体系列表</h1>
+                    <p class="text-neutral-500 mt-1">管理各种标签体系，包括意图标签体系和实体标签体系</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <input type="text" placeholder="搜索标签体系..." class="w-64 pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none text-sm">
+                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
+                    </div>
+                    <button onclick="openAddModal()" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                        <i class="fa fa-plus mr-2"></i>
+                        <span>新建标签体系</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 标签体系分类 -->
+        <div class="mb-6">
+            <div class="flex space-x-1 bg-neutral-100 p-1 rounded-lg w-fit">
+                <button class="px-4 py-2 text-sm font-medium rounded-md bg-white text-primary shadow-sm" id="all-tab">
+                    全部
+                </button>
+                <button class="px-4 py-2 text-sm font-medium rounded-md text-neutral-600 hover:text-neutral-800" id="intent-tab">
+                    意图标签体系
+                </button>
+                <button class="px-4 py-2 text-sm font-medium rounded-md text-neutral-600 hover:text-neutral-800" id="entity-tab">
+                    实体标签体系
+                </button>
+            </div>
+        </div>
+
+        <!-- 标签体系列表 -->
+        <div class="bg-white rounded-lg card-shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-neutral-200">
+                    <thead class="bg-neutral-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">标签体系名称</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">类型</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">描述</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">标签数量</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">创建时间</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">状态</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-neutral-200" id="tag-systems-list">
+                        <!-- 标签体系数据将通过JavaScript动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 空状态提示 -->
+        <div id="empty-state" class="hidden text-center py-12">
+            <i class="fa fa-search text-4xl text-neutral-300 mb-4"></i>
+            <h3 class="text-lg font-medium text-neutral-500 mb-2">未找到相关标签体系</h3>
+            <p class="text-sm text-neutral-400">请尝试调整搜索条件或创建新的标签体系</p>
+        </div>
+    </main>
+
+    <!-- 新增标签体系弹窗 -->
+    <div id="add-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-neutral-800">新增标签体系</h3>
+                    <button onclick="closeAddModal()" class="text-neutral-400 hover:text-neutral-600">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="add-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">标签体系名称</label>
+                        <input type="text" id="system-name" required class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">类型</label>
+                        <select id="system-type" required class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none">
+                            <option value="">请选择类型</option>
+                            <option value="intent">意图标签体系</option>
+                            <option value="entity">实体标签体系</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">描述</label>
+                        <textarea id="system-description" rows="3" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" onclick="closeAddModal()" class="px-4 py-2 text-neutral-600 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                            取消
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                            确定
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fa fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-neutral-800">确认删除</h3>
+                        <p class="text-sm text-neutral-500">此操作不可撤销</p>
+                    </div>
+                </div>
+                
+                <p class="text-neutral-600 mb-6">确定要删除标签体系 "<span id="delete-system-name"></span>" 吗？</p>
+                
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeDeleteModal()" class="px-4 py-2 text-neutral-600 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                        取消
+                    </button>
+                    <button onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        删除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-neutral-200 py-4">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-sm text-neutral-500">
+                © 2024 标签体系管理系统 - 版权所有
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 功能实现 -->
+    <script>
+        // 标签体系数据
+        let tagSystems = [
+            {
+                id: 1,
+                name: '用户意图识别体系',
+                type: 'intent',
+                description: '用于识别和分类用户的各种意图，包括查询、购买、咨询等行为意图标签。',
+                tagCount: 15,
+                createTime: '2024-01-15',
+                status: '启用'
+            },
+            {
+                id: 2,
+                name: '客服对话意图体系',
+                type: 'intent',
+                description: '专门用于客服对话场景的意图识别，包括投诉、咨询、建议等对话意图分类。',
+                tagCount: 8,
+                createTime: '2024-01-10',
+                status: '启用'
+            },
+            {
+                id: 3,
+                name: '产品标签体系',
+                type: 'entity',
+                description: '管理产品的层级标签体系，包括产品类别、产品线、产品系列、产品型号等实体标签。',
+                tagCount: 45,
+                createTime: '2024-01-20',
+                status: '启用'
+            },
+            {
+                id: 4,
+                name: '客户标签体系',
+                type: 'entity',
+                description: '客户相关的实体标签体系，包括客户类型、行业分类、地区分布等客户实体标签。',
+                tagCount: 23,
+                createTime: '2024-01-18',
+                status: '启用'
+            },
+            {
+                id: 5,
+                name: '供应商标签体系',
+                type: 'entity',
+                description: '供应商相关的实体标签体系，包括供应商类型、资质等级、合作状态等供应商实体标签。',
+                tagCount: 18,
+                createTime: '2024-01-12',
+                status: '启用'
+            },
+            {
+                id: 6,
+                name: '营销活动意图体系',
+                type: 'intent',
+                description: '营销活动相关的意图识别体系，包括推广、促销、品牌宣传等营销意图标签。',
+                tagCount: 12,
+                createTime: '2024-01-08',
+                status: '启用'
+            }
+        ];
+
+        let currentFilter = 'all';
+        let currentSearchTerm = '';
+        let deleteSystemId = null;
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTagSystems();
+            
+            // 标签分类切换功能
+            const tabs = document.querySelectorAll('[id$="-tab"]');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 更新标签样式
+                    tabs.forEach(t => {
+                        t.classList.remove('bg-white', 'text-primary', 'shadow-sm');
+                        t.classList.add('text-neutral-600', 'hover:text-neutral-800');
+                    });
+                    this.classList.remove('text-neutral-600', 'hover:text-neutral-800');
+                    this.classList.add('bg-white', 'text-primary', 'shadow-sm');
+                    
+                    // 过滤显示对应的标签体系
+                    currentFilter = this.id.replace('-tab', '');
+                    renderTagSystems();
+                });
+            });
+            
+            // 搜索功能
+            const searchInput = document.querySelector('input[placeholder="搜索标签体系..."]');
+            searchInput.addEventListener('input', function() {
+                currentSearchTerm = this.value.toLowerCase();
+                renderTagSystems();
+            });
+
+            // 新增表单提交
+            document.getElementById('add-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addTagSystem();
+            });
+        });
+
+        // 渲染标签体系列表
+        function renderTagSystems() {
+            const tbody = document.getElementById('tag-systems-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            // 过滤数据
+            let filteredSystems = tagSystems.filter(system => {
+                const matchesFilter = currentFilter === 'all' || system.type === currentFilter;
+                const matchesSearch = !currentSearchTerm || 
+                    system.name.toLowerCase().includes(currentSearchTerm) ||
+                    system.description.toLowerCase().includes(currentSearchTerm);
+                return matchesFilter && matchesSearch;
+            });
+
+            if (filteredSystems.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            
+            tbody.innerHTML = filteredSystems.map(system => {
+                const typeText = system.type === 'intent' ? '意图标签体系' : '实体标签体系';
+                const typeClass = system.type === 'intent' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
+                const statusClass = system.status === '启用' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+                
+                return `
+                    <tr class="hover:bg-neutral-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="text-sm font-medium text-neutral-900 cursor-pointer hover:text-primary" onclick="openTagSystem('${system.type}', '${system.name}')">
+                                    ${system.name}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${typeClass}">
+                                ${typeText}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-neutral-500 max-w-xs truncate" title="${system.description}">
+                                ${system.description}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-neutral-900">${system.tagCount}个标签</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-neutral-500">${system.createTime}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${statusClass}">
+                                ${system.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end space-x-3">
+                                <button onclick="editTagSystem(${system.id})" class="text-primary hover:text-primary/80">编辑</button>
+                                <button onclick="deleteTagSystem(${system.id}, '${system.name}')" class="text-red-600 hover:text-red-700">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // 打开标签体系详情页面
+        function openTagSystem(type, name) {
+            if (type === 'entity' && name === '产品标签体系') {
+                window.location.href = 'product-tag-system-updated.html';
+            } else if (type === 'intent' && name === '客服对话意图体系') {
+                window.location.href = 'customer-service-intent-system.html';
+            } else {
+                alert(`正在打开 ${name} 详情页面...`);
+            }
+        }
+
+        // 打开新增弹窗
+        function openAddModal() {
+            document.getElementById('add-modal').classList.remove('hidden');
+        }
+
+        // 关闭新增弹窗
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.add('hidden');
+            document.getElementById('add-form').reset();
+        }
+
+        // 新增标签体系
+        function addTagSystem() {
+            const name = document.getElementById('system-name').value;
+            const type = document.getElementById('system-type').value;
+            const description = document.getElementById('system-description').value;
+
+            const newSystem = {
+                id: Date.now(),
+                name: name,
+                type: type,
+                description: description,
+                tagCount: 0,
+                createTime: new Date().toISOString().split('T')[0],
+                status: '启用'
+            };
+
+            tagSystems.push(newSystem);
+            renderTagSystems();
+            closeAddModal();
+        }
+
+        // 编辑标签体系
+        function editTagSystem(id) {
+            const system = tagSystems.find(s => s.id === id);
+            if (system) {
+                alert(`编辑功能开发中...\n标签体系: ${system.name}`);
+            }
+        }
+
+        // 删除标签体系
+        function deleteTagSystem(id, name) {
+            deleteSystemId = id;
+            document.getElementById('delete-system-name').textContent = name;
+            document.getElementById('delete-modal').classList.remove('hidden');
+        }
+
+        // 关闭删除弹窗
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+            deleteSystemId = null;
+        }
+
+        // 确认删除
+        function confirmDelete() {
+            if (deleteSystemId) {
+                tagSystems = tagSystems.filter(s => s.id !== deleteSystemId);
+                renderTagSystems();
+                closeDeleteModal();
+            }
+        }
+    </script>
+</body>
+</html>

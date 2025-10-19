@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客服对话意图体系 - 意图标签体系详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="js/api.js"></script>
+    
+    <!-- Tailwind配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        success: '#36D399',
+                        warning: '#FBBD23',
+                        error: '#F87272',
+                        neutral: {
+                            100: '#F3F4F6',
+                            200: '#E5E7EB',
+                            300: '#D1D5DB',
+                            400: '#9CA3AF',
+                            500: '#6B7280',
+                            600: '#4B5563',
+                            700: '#374151',
+                            800: '#1F2937',
+                            900: '#111827',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto { content-visibility: auto; }
+            .card-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); }
+            .tag-active { 
+                background-color: rgba(22, 93, 255, 0.1); 
+                border-left: 3px solid #165DFF; 
+                font-weight: 500; 
+            }
+            .tree-line { position: relative; }
+            .tree-line::before {
+                content: "";
+                position: absolute;
+                left: -12px; top: 0;
+                height: 100%; width: 1px;
+                background-color: #D1D5DB;
+            }
+            .tree-line::after {
+                content: "";
+                position: absolute;
+                left: -12px; top: 10px;
+                width: 6px; height: 1px;
+                background-color: #D1D5DB;
+            }
+            /* 层级样式 */
+            .level-1 { font-weight: 600; }
+            .level-2 { padding-left: 1rem; }
+            .level-3 { padding-left: 2rem; }
+            .empty-value { color: #9CA3AF; font-style: italic; }
+            .tag-item:hover .opacity-0 { opacity: 1 !important; }
+        }
+    </style>
+</head>
+<body class="font-inter bg-neutral-100 text-neutral-800 min-h-screen flex flex-col">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white border-b border-neutral-200 sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- 系统标识 -->
+                <div class="flex items-center">
+                    <i class="fa fa-comments-o text-primary text-2xl mr-2"></i>
+                    <span class="text-xl font-semibold text-neutral-800">客服对话意图体系</span>
+                </div>
+                
+                <!-- 功能导航 -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="javascript:history.back()" class="text-neutral-600 hover:text-primary py-5 transition-colors">标签体系列表</a>
+                    <a href="#" class="text-primary font-medium border-b-2 border-primary py-5">意图标签管理</a>
+                    <a href="#" class="text-neutral-600 hover:text-primary py-5 transition-colors">系统设置</a>
+                </nav>
+                
+                <!-- 用户信息 -->
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 rounded-full text-neutral-600 hover:bg-neutral-100 transition-colors">
+                        <i class="fa fa-bell-o"></i>
+                    </button>
+                    <div class="flex items-center">
+                        <img src="https://picsum.photos/id/1005/200/200" alt="用户头像" class="h-8 w-8 rounded-full object-cover">
+                        <span class="ml-2 text-sm font-medium hidden sm:block">管理员</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 面包屑导航 -->
+    <div class="bg-white border-b border-neutral-200">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <nav class="flex items-center space-x-2 text-sm">
+                <a href="javascript:history.back()" class="text-neutral-500 hover:text-primary transition-colors">标签体系列表</a>
+                <i class="fa fa-chevron-right text-neutral-400 text-xs"></i>
+                <span class="text-neutral-800 font-medium">客服对话意图体系</span>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 主内容区：左侧意图标签树，右侧意图详情 -->
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- 左侧：意图标签树 -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg card-shadow h-full flex flex-col">
+                    <!-- 标签树标题 -->
+                    <div class="p-4 border-b border-neutral-200">
+                        <h2 class="text-lg font-semibold text-neutral-800">意图标签树</h2>
+                        <p class="text-xs text-neutral-500 mt-1">客服对话意图体系 - 6大类一级意图</p>
+                    </div>
+                    
+                    <!-- 标签树内容 -->
+                    <div class="p-3 overflow-y-auto flex-grow text-sm" id="label-tree-container">
+                        <ul class="space-y-1">
+                            <!-- 标签树将通过JS动态生成 -->
+                                </ul>
+                    </div>
+                    
+                    <!-- 标签操作按钮 -->
+                    <div class="p-4 border-t border-neutral-200 flex gap-3">
+                        <button class="flex-1 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors">
+                            <i class="fa fa-plus mr-2"></i>
+                            <span>新增意图</span>
+                        </button>
+                        <button class="bg-neutral-100 hover:bg-neutral-200 text-neutral-700 p-2 rounded-lg transition-colors">
+                            <i class="fa fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧：规则列表 -->
+            <div class="lg:col-span-3">
+                <div class="bg-white rounded-lg card-shadow h-full flex flex-col">
+                    <!-- 列表标题栏 -->
+                    <div class="p-4 border-b border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-lg font-semibold text-neutral-800">规则列表</h2>
+                            <p class="text-sm text-neutral-500 mt-1" id="current-intent-desc">请在左侧选择意图标签，查看对应规则</p>
+                        </div>
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                            <div class="relative w-full sm:w-64">
+                                <input type="text" placeholder="搜索规则..." class="w-full pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none text-sm">
+                                <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400"></i>
+                            </div>
+                            <button onclick="addRule()" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                                <i class="fa fa-plus mr-2"></i>
+                                <span class="hidden sm:inline">新增规则</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 列表内容 -->
+                    <div class="flex-grow overflow-y-auto">
+                        <!-- 默认提示状态 -->
+                        <div id="default-empty" class="flex flex-col items-center justify-center h-64 text-neutral-500">
+                            <i class="fa fa-folder-open-o text-4xl mb-4"></i>
+                            <p>未选择意图标签</p>
+                            <p class="text-sm mt-2">请在左侧点击意图标签，加载对应规则数据</p>
+                        </div>
+                        
+                        <!-- 规则列表内容 -->
+                        <div id="rule-list" class="hidden">
+                            <table class="min-w-full divide-y divide-neutral-200">
+                                <thead class="bg-neutral-50 sticky top-0 z-10">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">规则信息</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">规则类别</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-neutral-200" id="rule-items">
+                                    <!-- 规则数据将通过JavaScript动态填充 -->
+                                </tbody>
+                            </table>
+                            
+                            <!-- 分页 -->
+                            <div class="px-6 py-3 flex items-center justify-between border-t border-neutral-200">
+                                <div class="flex-1 flex justify-between sm:hidden">
+                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-neutral-300 text-sm font-medium rounded-md text-neutral-700 bg-white hover:bg-neutral-50">
+                                        上一页
+                                    </a>
+                                    <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-neutral-300 text-sm font-medium rounded-md text-neutral-700 bg-white hover:bg-neutral-50">
+                                        下一页
+                                    </a>
+                                </div>
+                                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                    <div>
+                                        <p class="text-sm text-neutral-700">
+                                            显示第 <span class="font-medium">1</span> 到 <span class="font-medium">5</span> 条，共 <span class="font-medium">12</span> 条结果
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-neutral-300 bg-white text-sm font-medium text-neutral-500 hover:bg-neutral-50">
+                                                <span class="sr-only">上一页</span>
+                                                <i class="fa fa-chevron-left text-xs"></i>
+                                            </a>
+                                            <a href="#" aria-current="page" class="z-10 bg-primary text-white relative inline-flex items-center px-4 py-2 border border-primary text-sm font-medium">
+                                                1
+                                            </a>
+                                            <a href="#" class="bg-white border-neutral-300 text-neutral-500 hover:bg-neutral-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                                2
+                                            </a>
+                                            <a href="#" class="bg-white border-neutral-300 text-neutral-500 hover:bg-neutral-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                                3
+                                            </a>
+                                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-neutral-300 bg-white text-sm font-medium text-neutral-500 hover:bg-neutral-50">
+                                                <span class="sr-only">下一页</span>
+                                                <i class="fa fa-chevron-right text-xs"></i>
+                                            </a>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 新增规则弹窗 -->
+    <div id="add-rule-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-neutral-800">新增规则 (支持批量)</h3>
+                    <button onclick="closeAddRuleModal()" class="text-neutral-400 hover:text-neutral-600">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6 space-y-4 overflow-y-auto flex-grow">
+                <div id="rule-rows-container" class="space-y-4"> 
+                    <!-- 规则行将在这里动态添加 -->
+                </div>
+                <button type="button" onclick="addNewRuleRow()" class="mt-4 text-sm text-primary hover:text-primary/80 font-medium flex items-center">
+                    <i class="fa fa-plus-circle mr-2"></i>
+                    添加一行
+                </button>
+            </div>
+            
+            <div class="p-6 bg-neutral-50 border-t flex justify-end space-x-3">
+                <button type="button" onclick="closeAddRuleModal()" class="px-4 py-2 text-neutral-600 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                    取消
+                </button>
+                <button type="button" onclick="submitAddRuleForm()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    确定提交
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <template id="rule-row-template">
+        <div class="rule-row p-4 border rounded-lg bg-white space-y-3">
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">规则类别</label>
+                    <select name="rule_category" required class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none">
+                        <option value="expression">表达式</option>
+                        <option value="sentence">表达句</option>
+                        <option value="keyword">关键词</option>
+                    </select>
+                </div>
+            </div>
+            <div class="rule-fields-container space-y-3">
+                <div class="rule-expression-container">
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">规则表达式</label>
+                    <textarea name="rule_expression" rows="2" class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"></textarea>
+                    <div class="entity-tags-container hidden mt-2">
+                        <label class="block text-xs font-medium text-neutral-600 mb-1">可引用的实体标签 (点击插入)</label>
+                        <div class="entity-tags-list flex flex-wrap gap-1 p-2 border border-neutral-200 rounded-lg bg-neutral-50">
+                            <!-- 实体标签 -->
+                        </div>
+                    </div>
+                </div>
+                <div class="rule-sentence-container hidden">
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">规则表达句</label>
+                    <textarea name="rule_sentence" rows="2" class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"></textarea>
+                </div>
+                <div class="rule-keywords-container hidden">
+                    <label class="block text-sm font-medium text-neutral-700 mb-1">关键词 (逗号分隔)</label>
+                    <input type="text" name="rule_keywords" class="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none">
+                </div>
+            </div>
+            <button type="button" class="remove-row-btn text-red-500 hover:text-red-700 text-xs font-medium">
+                <i class="fa fa-trash-o mr-1"></i>删除
+            </button>
+        </div>
+    </template>
+
+    <!-- 新增标签弹窗 -->
+    <div id="add-tag-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-neutral-800">新增意图标签</h3>
+                    <button onclick="closeAddTagModal()" class="text-neutral-400 hover:text-neutral-600">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="add-tag-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">父级标签</label>
+                        <input type="text" id="parent-tag" readonly class="w-full px-3 py-2 border border-neutral-300 rounded-lg bg-neutral-50 text-neutral-600">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">标签名称</label>
+                        <input type="text" id="tag-name" required class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">标签编码</label>
+                        <input type="text" id="tag-code" required class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">描述</label>
+                        <textarea id="tag-description" rows="3" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" onclick="closeAddTagModal()" class="px-4 py-2 text-neutral-600 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                            取消
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                            确定
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除标签确认弹窗 -->
+    <div id="delete-tag-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fa fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-neutral-800">确认删除</h3>
+                        <p class="text-sm text-neutral-500">此操作不可撤销</p>
+                    </div>
+                </div>
+                
+                <p class="text-neutral-600 mb-6">确定要删除意图标签 "<span id="delete-tag-name"></span>" 吗？删除后其所有子标签也将被删除。</p>
+                
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeDeleteTagModal()" class="px-4 py-2 text-neutral-600 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                        取消
+                    </button>
+                    <button onclick="confirmDeleteTag()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        删除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-neutral-200 py-4">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-sm text-neutral-500">
+                © 2024 标签体系管理系统 - 版权所有
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 功能实现 -->
+    <script>
+        // 实体标签体系数据
+        const entityTags = {
+            "产品型号": ["SV630N", "SV660N", "SV680N", "SV800N"],
+            "设备型号": ["PLC-200", "PLC-300", "PLC-400", "HMI-700"],
+            "故障码": ["E001", "E002", "E003", "E004"],
+            "编程语言": ["ST", "LAD", "FBD", "SCL"],
+            "代码类型": ["ST代码", "梯形图", "功能块", "结构化文本"],
+            "前端框架": ["React", "Vue", "Angular", "jQuery"],
+            "用户身份": ["管理员", "操作员", "工程师", "访客"],
+            "测试类型": ["功能测试", "性能测试", "压力测试", "兼容性测试"],
+            "有害行为": ["SQL注入", "XSS攻击", "CSRF攻击", "恶意脚本"],
+            "其他类型": ["技术咨询", "产品咨询", "服务咨询", "投诉建议"]
+        };
+
+        // 规则数据
+        const ruleData = {
+            // 知识问答相关规则
+            "知识问答": [
+                { 
+                    ruleInfo: "设备操作规则", 
+                    ruleCategory: "表达句", 
+                    expression: "{设备型号}操作", 
+                    expressionSentence: "这个{设备型号}怎么操作", 
+                    keywords: "怎么操作,如何使用,步骤,流程", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "技术参数规则", 
+                    ruleCategory: "关键词", 
+                    expression: "{产品型号}参数", 
+                    expressionSentence: "这个{产品型号}的参数是多少", 
+                    keywords: "参数,规格,配置,性能", 
+                    isUsed: true
+                }
+            ],
+            
+            // 故障码类相关规则
+            "故障码类": [
+                { 
+                    ruleInfo: "这个{故障码}是什么意思", 
+                    ruleCategory: "表达式", 
+                    expression: "{故障码}是什么意思", 
+                    expressionSentence: "这个{故障码}是什么意思", 
+                    keywords: "故障码,错误代码,报警,异常", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "{故障码}解释", 
+                    ruleCategory: "表达式", 
+                    expression: "{故障码}解释", 
+                    expressionSentence: "请解释{故障码}", 
+                    keywords: "解释,说明,描述,详细", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "{故障码}是什么", 
+                    ruleCategory: "表达式", 
+                    expression: "{故障码}是什么", 
+                    expressionSentence: "{故障码}是什么", 
+                    keywords: "是什么,含义,意思,代表", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "{故障码}原因", 
+                    ruleCategory: "表达式", 
+                    expression: "{故障码}原因", 
+                    expressionSentence: "{故障码}是什么原因", 
+                    keywords: "原因,为什么,导致,引起", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "{故障码}解决", 
+                    ruleCategory: "表达式", 
+                    expression: "{故障码}解决", 
+                    expressionSentence: "{故障码}怎么解决", 
+                    keywords: "解决,处理,修复,排除", 
+                    isUsed: true
+                }
+            ],
+            
+            // 代码相关规则
+            "代码": [
+                { 
+                    ruleInfo: "ST代码编写规则", 
+                    ruleCategory: "表达式", 
+                    expression: "{编程语言}代码编写", 
+                    expressionSentence: "怎么写{编程语言}代码", 
+                    keywords: "ST代码,结构化文本,编程,代码", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "梯形图规则", 
+                    ruleCategory: "表达句", 
+                    expression: "{设备型号}梯形图", 
+                    expressionSentence: "{设备型号}的梯形图怎么画", 
+                    keywords: "梯形图,LAD,逻辑图,程序", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "代码调试规则", 
+                    ruleCategory: "关键词", 
+                    expression: "{代码类型}调试", 
+                    expressionSentence: "{代码类型}有问题怎么调试", 
+                    keywords: "调试,错误,问题,修改", 
+                    isUsed: true
+                }
+            ],
+            
+            // JS代码相关规则
+            "JS代码": [
+                { 
+                    ruleInfo: "JavaScript基础语法", 
+                    ruleCategory: "表达式", 
+                    expression: "{前端框架}语法", 
+                    expressionSentence: "{前端框架}的基础语法是什么", 
+                    keywords: "JavaScript,JS,语法,基础", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "JS函数编写", 
+                    ruleCategory: "表达式", 
+                    expression: "{前端框架}函数", 
+                    expressionSentence: "怎么写{前端框架}函数", 
+                    keywords: "函数,方法,编写,定义", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "JS事件处理", 
+                    ruleCategory: "表达式", 
+                    expression: "{前端框架}事件", 
+                    expressionSentence: "{前端框架}事件怎么处理", 
+                    keywords: "事件,处理,监听,绑定", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "JS DOM操作", 
+                    ruleCategory: "表达式", 
+                    expression: "{前端框架}DOM", 
+                    expressionSentence: "用{前端框架}怎么操作DOM", 
+                    keywords: "DOM,元素,节点,操作", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "JS异步编程", 
+                    ruleCategory: "表达式", 
+                    expression: "{前端框架}异步", 
+                    expressionSentence: "{前端框架}异步编程怎么做", 
+                    keywords: "异步,Promise,async,await", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "JS错误处理", 
+                    ruleCategory: "表达式", 
+                    expression: "{前端框架}错误", 
+                    expressionSentence: "{前端框架}错误怎么处理", 
+                    keywords: "错误,异常,捕获,处理", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "JS性能优化", 
+                    ruleCategory: "表达式", 
+                    expression: "{前端框架}优化", 
+                    expressionSentence: "{前端框架}性能怎么优化", 
+                    keywords: "性能,优化,提升,加速", 
+                    isUsed: true
+                }
+            ],
+            
+            // 写代码相关规则
+            "写代码": [
+                { 
+                    ruleInfo: "帮我写一个{编程语言}程序", 
+                    ruleCategory: "表达句", 
+                    expression: "{编程语言}程序", 
+                    expressionSentence: "帮我写一个{编程语言}程序", 
+                    keywords: "写程序,编程,代码,开发", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "用{编程语言}实现{功能描述}", 
+                    ruleCategory: "表达句", 
+                    expression: "{编程语言}实现", 
+                    expressionSentence: "用{编程语言}实现{功能描述}", 
+                    keywords: "实现,功能,开发,编写", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "写代码", 
+                    ruleCategory: "关键词", 
+                    expression: "写代码", 
+                    expressionSentence: "写代码", 
+                    keywords: "写代码,编程,开发,编写", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "编程", 
+                    ruleCategory: "关键词", 
+                    expression: "编程", 
+                    expressionSentence: "编程", 
+                    keywords: "编程,写代码,开发,编写", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "开发", 
+                    ruleCategory: "关键词", 
+                    expression: "开发", 
+                    expressionSentence: "开发", 
+                    keywords: "开发,编程,写代码,编写", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "编写{代码类型}代码", 
+                    ruleCategory: "表达句", 
+                    expression: "{代码类型}代码", 
+                    expressionSentence: "编写{代码类型}代码", 
+                    keywords: "编写,代码,开发,编程", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "创建一个{功能模块}", 
+                    ruleCategory: "表达句", 
+                    expression: "{功能模块}", 
+                    expressionSentence: "创建一个{功能模块}", 
+                    keywords: "创建,模块,功能,开发", 
+                    isUsed: true
+                },
+                { 
+                    ruleInfo: "实现算法", 
+                    ruleCategory: "关键词", 
+                    expression: "算法", 
+                    expressionSentence: "实现算法", 
+                    keywords: "算法,实现,编程,代码", 
+                    isUsed: true
+                }
+            ],
+            
+            // 无意义相关规则
+            "无意义": [
+                { 
+                    ruleInfo: "无意义内容规则", 
+                    ruleCategory: "关键词", 
+                    expression: "{测试类型}内容", 
+                    expressionSentence: "{测试类型}测试一下", 
+                    keywords: "测试,随便,无聊,无意义", 
+                    isUsed: true
+                }
+            ],
+            
+            // 身份认知相关规则
+            "身份认知": [
+                { 
+                    ruleInfo: "身份识别规则", 
+                    ruleCategory: "表达句", 
+                    expression: "{用户身份}识别", 
+                    expressionSentence: "我是{用户身份}", 
+                    keywords: "我是,身份,角色,权限", 
+                    isUsed: true
+                }
+            ],
+            
+            // 有害类相关规则
+            "有害类": [
+                { 
+                    ruleInfo: "有害内容规则", 
+                    ruleCategory: "表达式", 
+                    expression: "{有害行为}检测", 
+                    expressionSentence: "检测{有害行为}内容", 
+                    keywords: "攻击,恶意,违法,不当", 
+                    isUsed: true
+                }
+            ],
+            
+            // 其他类相关规则
+            "其他类": [
+                { 
+                    ruleInfo: "其他类型规则", 
+                    ruleCategory: "关键词", 
+                    expression: "{其他类型}处理", 
+                    expressionSentence: "处理{其他类型}问题", 
+                    keywords: "其他,未分类,杂项", 
+                    isUsed: true
+                }
+            ]
+        };
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 初始化标签树
+            await initializeLabelTree();
+
+            
+            // 标签展开/收起功能
+            const toggleIcons = document.querySelectorAll('.toggle-icon');
+            toggleIcons.forEach(icon => {
+                icon.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const parent = this.closest('div');
+                    const subList = parent.nextElementSibling;
+                    
+                    // 切换图标和列表显示状态
+                    if (subList && subList.tagName === 'UL') {
+                        if (subList.classList.contains('hidden')) {
+                            subList.classList.remove('hidden');
+                            this.classList.remove('fa-folder-o');
+                            this.classList.add('fa-folder-open-o');
+                        } else {
+                            subList.classList.add('hidden');
+                            this.classList.remove('fa-folder-open-o');
+                            this.classList.add('fa-folder-o');
+                        }
+                    }
+                });
+            });
+            
+            // 标签点击选中和加载意图功能
+            const tagItems = document.querySelectorAll('.tag-item');
+            tagItems.forEach(item => {
+                item.addEventListener('click', async function() {
+                    // 移除所有标签的选中状态
+                    tagItems.forEach(tag => tag.classList.remove('tag-active'));
+                    
+                    // 添加当前标签的选中状态
+                    this.classList.add('tag-active');
+                    
+                    // 获取标签名称和编码
+                    const tagName = this.querySelector('span').textContent;
+                    const tagCode = this.dataset.tagCode || tagName;
+                    
+                    // 更新描述信息
+                    document.getElementById('current-intent-desc').textContent = `当前意图: ${tagName} - 规则列表`;
+                    
+                    // 显示规则列表，隐藏默认提示
+                    document.getElementById('default-empty').classList.add('hidden');
+                    document.getElementById('rule-list').classList.remove('hidden');
+                    
+                    // 加载对应规则数据
+                    await loadRuleDataFromAPI(tagCode);
+                });
+            });
+        });
+        
+        // 初始化标签树
+        async function initializeLabelTree() {
+            try {
+                const labelTree = await window.dataManager.getLabelTree({ label_type: 'intent' });
+                const container = document.querySelector("#label-tree-container ul");
+                container.innerHTML = ''; // 清空静态内容
+                renderLabelTree(labelTree, container);
+                setupTagEventListeners(); // 重新绑定事件
+            } catch (error) {
+                console.error('初始化标签树失败:', error);
+            }
+        }
+
+        // 递归渲染标签树
+        function renderLabelTree(nodes, container) {
+            nodes.forEach(node => {
+                const hasChildren = node.children && node.children.length > 0;
+                const li = document.createElement('li');
+                li.className = `level-${node.level}`;
+
+                li.innerHTML = `
+                    <div class="tag-item pl-3 pr-2 py-2 rounded hover:bg-neutral-100 cursor-pointer flex items-center justify-between" data-tag-id="${node.id}" data-tag-code="${node.label_code}">
+                        <div class="flex items-center">
+                            <i class="toggle-icon fa ${hasChildren ? 'fa-folder-open-o' : 'fa-tag'} text-primary mr-2"></i>
+                            <span>${node.label_name}</span>
+                        </div>
+                        <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="event.stopPropagation(); addTag('${node.label_name}', ${node.level})" class="p-1 text-green-600 hover:bg-green-100 rounded" title="新增子标签">
+                                <i class="fa fa-plus text-xs"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteTag('${node.label_name}', ${node.level})" class="p-1 text-red-600 hover:bg-red-100 rounded" title="删除标签">
+                                <i class="fa fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                if (hasChildren) {
+                    const ul = document.createElement('ul');
+                    ul.className = 'pl-6 mt-1 space-y-1';
+                    renderLabelTree(node.children, ul);
+                    li.appendChild(ul);
+                }
+
+                container.appendChild(li);
+            });
+        }
+
+        // 为动态生成的标签绑定事件
+        function setupTagEventListeners() {
+            const tagItems = document.querySelectorAll('.tag-item');
+            tagItems.forEach(item => {
+                item.addEventListener('click', async function() {
+                    tagItems.forEach(tag => tag.classList.remove('tag-active'));
+                    this.classList.add('tag-active');
+                    
+                    const tagName = this.querySelector('span').textContent;
+                    const tagCode = this.dataset.tagCode;
+                    
+                    document.getElementById('current-intent-desc').textContent = `当前意图: ${tagName} - 规则列表`;
+                    document.getElementById('default-empty').classList.add('hidden');
+                    document.getElementById('rule-list').classList.remove('hidden');
+                    
+                    await loadRuleDataFromAPI(tagCode);
+                });
+            });
+
+            const toggleIcons = document.querySelectorAll('.toggle-icon');
+            toggleIcons.forEach(icon => {
+                icon.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const parentLi = this.closest('li');
+                    const subList = parentLi.querySelector('ul');
+                    
+                    if (subList) {
+                        subList.classList.toggle('hidden');
+                        this.classList.toggle('fa-folder-o');
+                        this.classList.toggle('fa-folder-open-o');
+                    }
+                });
+            });
+        }
+        
+        // 从API加载规则数据
+        async function loadRuleDataFromAPI(tagCode) {
+            try {
+                const rules = await window.dataManager.getRulesByLabelCode(tagCode);
+                displayRules(rules);
+            } catch (error) {
+                console.error('加载规则数据失败:', error);
+                // 回退到本地数据
+                loadRuleData(tagCode);
+            }
+        }
+
+        // 显示规则数据
+        function displayRules(rules) {
+            const ruleItems = document.getElementById('rule-items');
+            ruleItems.innerHTML = '';
+            
+            if (!rules || rules.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                  <td colspan="3" class="px-6 py-10 text-center text-neutral-500">
+                    <i class="fa fa-inbox mb-2"></i>
+                    <p>该意图下暂无规则数据</p>
+                  </td>
+                `;
+                ruleItems.appendChild(emptyRow);
+                return;
+            }
+            
+            // 填充规则数据
+            rules.forEach(rule => {
+                // 根据规则类别设置不同的样式
+                let categoryClass = '';
+                switch(rule.rule_category) {
+                    case 'expression':
+                        categoryClass = 'bg-blue-100 text-blue-800';
+                        break;
+                    case 'sentence':
+                        categoryClass = 'bg-purple-100 text-purple-800';
+                        break;
+                    case 'keyword':
+                        categoryClass = 'bg-orange-100 text-orange-800';
+                        break;
+                    default:
+                        categoryClass = 'bg-gray-100 text-gray-800';
+                }
+                
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-neutral-50 transition-colors';
+                row.innerHTML = `
+                  <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-neutral-900">${rule.rule_name}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${categoryClass}">
+                      ${rule.rule_category}
+                    </span>
+                    <div class="text-xs text-neutral-500 mt-1">
+                      ${rule.is_active ? '✅ 启用' : '❌ 禁用'}
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex justify-end space-x-3">
+                      <button onclick="viewRule(${rule.id})" class="text-primary hover:text-primary/80">查看</button>
+                      <button onclick="editRule(${rule.id})" class="text-neutral-600 hover:text-neutral-900">编辑</button>
+                      <button onclick="deleteRule(${rule.id})" class="text-error hover:text-error/80">删除</button>
+                    </div>
+                  </td>
+                `;
+                ruleItems.appendChild(row);
+            });
+        }
+
+        // 加载规则数据（本地数据，作为备用）
+        function loadRuleData(tagName) {
+            const ruleItems = document.getElementById('rule-items');
+            ruleItems.innerHTML = '';
+            
+            // 获取对应标签的规则数据，如果没有则显示空状态
+            const rules = ruleData[tagName] || [];
+            
+            if (rules.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                  <td colspan="3" class="px-6 py-10 text-center text-neutral-500">
+                    <i class="fa fa-inbox mb-2"></i>
+                    <p>该意图下暂无规则数据</p>
+                  </td>
+                `;
+                ruleItems.appendChild(emptyRow);
+                return;
+            }
+            
+            // 填充规则数据
+            rules.forEach(rule => {
+                // 根据规则类别设置不同的样式
+                let categoryClass = '';
+                switch(rule.ruleCategory) {
+                    case '表达式':
+                        categoryClass = 'bg-blue-100 text-blue-800';
+                        break;
+                    case '表达句':
+                        categoryClass = 'bg-purple-100 text-purple-800';
+                        break;
+                    case '关键词':
+                        categoryClass = 'bg-orange-100 text-orange-800';
+                        break;
+                    default:
+                        categoryClass = 'bg-gray-100 text-gray-800';
+                }
+                
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-neutral-50 transition-colors';
+                row.innerHTML = `
+                  <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-neutral-900">${rule.ruleInfo}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${categoryClass}">
+                      ${rule.ruleCategory}
+                    </span>
+                    <div class="text-xs text-neutral-500 mt-1">
+                      ${rule.isUsed ? '✅ 启用' : '❌ 禁用'}
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex justify-end space-x-3">
+                      <button onclick="viewRule('${rule.ruleInfo}')" class="text-primary hover:text-primary/80">查看</button>
+                      <button onclick="editRule('${rule.ruleInfo}')" class="text-neutral-600 hover:text-neutral-900">编辑</button>
+                      <button onclick="deleteRule('${rule.ruleInfo}')" class="text-error hover:text-error/80">删除</button>
+                    </div>
+                  </td>
+                `;
+                ruleItems.appendChild(row);
+            });
+        }
+
+        // 标签管理相关变量
+        let currentParentTag = '';
+        let currentTagLevel = 0;
+        let deleteTagName = '';
+
+        // 切换标签展开/收缩
+        function toggleTag(tagName, level) {
+            const tagItem = event.currentTarget.closest('li');
+            const subList = tagItem.querySelector('ul');
+            const toggleIcon = tagItem.querySelector('.toggle-icon');
+            
+            if (subList) {
+                if (subList.classList.contains('hidden')) {
+                    // 展开
+                    subList.classList.remove('hidden');
+                    toggleIcon.classList.remove('fa-folder-o');
+                    toggleIcon.classList.add('fa-folder-open-o');
+                } else {
+                    // 收缩
+                    subList.classList.add('hidden');
+                    toggleIcon.classList.remove('fa-folder-open-o');
+                    toggleIcon.classList.add('fa-folder-o');
+                }
+            }
+        }
+
+        // 新增标签
+        function addTag(parentTag, level) {
+            currentParentTag = parentTag;
+            currentTagLevel = level;
+            document.getElementById('parent-tag').value = parentTag;
+            document.getElementById('add-tag-modal').classList.remove('hidden');
+        }
+
+        // 关闭新增标签弹窗
+        function closeAddTagModal() {
+            document.getElementById('add-tag-modal').classList.add('hidden');
+            document.getElementById('add-tag-form').reset();
+        }
+
+        // 删除标签
+        function deleteTag(tagName, level) {
+            deleteTagName = tagName;
+            document.getElementById('delete-tag-name').textContent = tagName;
+            document.getElementById('delete-tag-modal').classList.remove('hidden');
+        }
+
+        // 关闭删除标签弹窗
+        function closeDeleteTagModal() {
+            document.getElementById('delete-tag-modal').classList.add('hidden');
+            deleteTagName = '';
+        }
+
+        // 确认删除标签
+        function confirmDeleteTag() {
+            if (deleteTagName) {
+                alert(`意图标签 "${deleteTagName}" 已删除`);
+                closeDeleteTagModal();
+            }
+        }
+
+        // 规则CRUD操作函数
+        async function viewRule(ruleId) {
+            try {
+                const response = await window.api.getRuleById(ruleId);
+                const rule = response.data;
+                alert(`查看规则: ${rule.rule_name}\n规则类别: ${rule.rule_category}\n规则表达式: ${rule.rule_expression}`);
+            } catch (error) {
+                console.error('查看规则失败:', error);
+                alert('查看规则失败');
+            }
+        }
+
+        async function editRule(ruleId) {
+            try {
+                const response = await window.api.getRuleById(ruleId);
+                const rule = response.data;
+                
+                // 简单的编辑对话框
+                const newRuleName = prompt('规则名称:', rule.rule_name);
+                if (newRuleName && newRuleName !== rule.rule_name) {
+                    const updateData = {
+                        rule_name: newRuleName
+                    };
+                    await window.dataManager.updateRule(ruleId, updateData);
+                    alert('规则更新成功');
+                    // 重新加载当前标签的规则
+                    const activeTag = document.querySelector('.tag-item.tag-active');
+                    if (activeTag) {
+                        const tagCode = activeTag.dataset.tagCode;
+                        await loadRuleDataFromAPI(tagCode);
+                    }
+                }
+            } catch (error) {
+                console.error('编辑规则失败:', error);
+                alert('编辑规则失败');
+            }
+        }
+
+        async function deleteRule(ruleId) {
+            try {
+                if (confirm('确定要删除这个规则吗？')) {
+                    await window.dataManager.deleteRule(ruleId);
+                    alert('规则删除成功');
+                    // 重新加载当前标签的规则
+                    const activeTag = document.querySelector('.tag-item.tag-active');
+                    if (activeTag) {
+                        const tagCode = activeTag.dataset.tagCode;
+                        await loadRuleDataFromAPI(tagCode);
+                    }
+                }
+            } catch (error) {
+                console.error('删除规则失败:', error);
+                alert('删除规则失败');
+            }
+        }
+
+        // 新增规则
+        let entityTagNamesCache = [];
+
+        // 打开新增规则弹窗并初始化
+        async function addRule() {
+            const activeTag = document.querySelector('.tag-item.tag-active');
+            if (!activeTag) {
+                alert('请先选择一个意图标签');
+                return;
+            }
+            
+            // 清空旧的规则行
+            document.getElementById('rule-rows-container').innerHTML = '';
+            
+            // 预加载实体标签
+            if (entityTagNamesCache.length === 0) {
+                try {
+                    entityTagNamesCache = await window.dataManager.getEntityTagNames();
+                } catch (error) {
+                    console.error('加载实体标签失败:', error);
+                }
+            }
+
+            addNewRuleRow(); // 添加第一行
+            document.getElementById('add-rule-modal').classList.remove('hidden');
+        }
+
+        // 新增一个规则行
+        function addNewRuleRow() {
+            const template = document.getElementById('rule-row-template');
+            const newRow = template.content.cloneNode(true).firstElementChild;
+            const container = document.getElementById('rule-rows-container');
+            container.appendChild(newRow);
+
+            // 绑定事件
+            const categorySelect = newRow.querySelector('[name="rule_category"]');
+            categorySelect.addEventListener('change', () => toggleRuleFieldsInRow(newRow, categorySelect.value));
+            
+            const removeBtn = newRow.querySelector('.remove-row-btn');
+            removeBtn.addEventListener('click', () => newRow.remove());
+
+            // 填充实体标签
+            const entityTagsList = newRow.querySelector('.entity-tags-list');
+            entityTagNamesCache.forEach(tagName => {
+                const tagEl = document.createElement('button');
+                tagEl.type = 'button';
+                tagEl.className = 'px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded hover:bg-blue-200 transition-colors';
+                tagEl.textContent = tagName;
+                tagEl.onclick = () => insertEntityTag(tagName, newRow.querySelector('[name="rule_expression"]'));
+                entityTagsList.appendChild(tagEl);
+            });
+
+            // 初始化字段显隐
+            toggleRuleFieldsInRow(newRow, categorySelect.value);
+        }
+
+        // 切换行内的规则字段
+        function toggleRuleFieldsInRow(rowElement, category) {
+            const expressionContainer = rowElement.querySelector('.rule-expression-container');
+            const sentenceContainer = rowElement.querySelector('.rule-sentence-container');
+            const keywordsContainer = rowElement.querySelector('.rule-keywords-container');
+            const entityTagsContainer = rowElement.querySelector('.entity-tags-container');
+
+            expressionContainer.classList.add('hidden');
+            sentenceContainer.classList.add('hidden');
+            keywordsContainer.classList.add('hidden');
+
+            if (category === 'expression') {
+                expressionContainer.classList.remove('hidden');
+            } else if (category === 'sentence') {
+                sentenceContainer.classList.remove('hidden');
+            } else if (category === 'keyword') {
+                keywordsContainer.classList.remove('hidden');
+            }
+        }
+
+        // 插入实体标签到指定的文本框
+        function insertEntityTag(tagName, textarea) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const before = text.substring(0, start);
+            const after = text.substring(end, text.length);
+            textarea.value = before + `{${tagName}}` + after;
+            textarea.selectionStart = textarea.selectionEnd = start + tagName.length + 2;
+            textarea.focus();
+        }
+
+        // 关闭新增规则弹窗
+        function closeAddRuleModal() {
+            document.getElementById('add-rule-modal').classList.add('hidden');
+        }
+
+        // 提交新增规则表单
+        async function submitAddRuleForm() {
+            const activeTag = document.querySelector('.tag-item.tag-active');
+            if (!activeTag) {
+                alert('提交失败：未选择意图标签');
+                return;
+            }
+            const tagCode = activeTag.dataset.tagCode;
+            const labelId = activeTag.dataset.tagId; // 从data属性获取真实的ID
+
+            const rows = document.querySelectorAll('#rule-rows-container .rule-row');
+            const rulePromises = [];
+
+            for (const row of rows) {
+                const category = row.querySelector('[name="rule_category"]').value;
+                let expression = '';
+                let sentence = '';
+                let keywords = '';
+                let ruleName = '';
+
+                if (category === 'expression') {
+                    expression = row.querySelector('[name="rule_expression"]').value;
+                    ruleName = expression;
+                } else if (category === 'sentence') {
+                    sentence = row.querySelector('[name="rule_sentence"]').value;
+                    expression = sentence;
+                    ruleName = sentence;
+                } else if (category === 'keyword') {
+                    keywords = row.querySelector('[name="rule_keywords"]').value;
+                    expression = keywords.split(',')[0] || '';
+                    ruleName = keywords;
+                }
+
+                if (!ruleName) {
+                    alert('规则内容不能为空，请检查');
+                    return;
+                }
+
+                const ruleData = {
+                    rule_name: ruleName.substring(0, 200), // 截断名称以防止超长
+                    rule_category: category,
+                    rule_expression: expression,
+                    rule_sentence: sentence,
+                    keywords: keywords,
+                    target_label_id: labelId,
+                    priority: 0,
+                    is_active: true
+                };
+                
+                rulePromises.push(window.dataManager.createRule(ruleData));
+            }
+
+            try {
+                await Promise.all(rulePromises);
+                alert(`成功提交 ${rulePromises.length} 条规则！`);
+                closeAddRuleModal();
+                await loadRuleDataFromAPI(tagCode);
+            } catch (error) {
+                console.error('批量新增规则失败:', error);
+                alert('新增规则失败，请检查控制台日志');
+            }
+        }
+
+        // 新增标签表单提交
+        document.addEventListener('DOMContentLoaded', function() {
+            // 新增表单提交
+            document.getElementById('add-tag-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const tagName = document.getElementById('tag-name').value;
+                const tagCode = document.getElementById('tag-code').value;
+                const tagDescription = document.getElementById('tag-description').value;
+
+                alert(`新增意图标签成功！\n标签名称: ${tagName}\n标签编码: ${tagCode}\n父级标签: ${currentParentTag}`);
+                closeAddTagModal();
+            });
+        });
+    </script>
+</body>
+</html>
