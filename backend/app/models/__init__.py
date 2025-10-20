@@ -1,16 +1,5 @@
-"""
-数据模型定义
-"""
-from .label_system import LabelSystem
-from .rule_management import RuleManagement
-from .entity_tag_mapping import EntityTagMapping
-from .item_data import ItemData
-from .label_item_relation import LabelItemRelation
-
-__all__ = [
-    "LabelSystem",
-    "RuleManagement",
-    "EntityTagMapping",
-    "ItemData",
-    "LabelItemRelation"
-]
+from .tag_system import TagSystem
+from .label import Label
+from .item import Item
+from .item_synonym import ItemSynonym
+from .intent_rule import IntentRule

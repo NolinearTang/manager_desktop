@@ -26,11 +26,11 @@ CREATE TABLE label_system (
 CREATE TABLE item_data (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
     item_name VARCHAR(200) NOT NULL COMMENT '数据项名称',
-    item_synonym TEXT COMMENT '同义词，JSON格式存储',
-    item_code VARCHAR(100) COMMENT '数据项编码',
+    item_code VARCHAR(100) UNIQUE COMMENT '数据项编码',
+    parent_code VARCHAR(100) COMMENT '父级数据项编码',
     item_type VARCHAR(50) COMMENT '数据项类型',
     description TEXT COMMENT '数据项描述',
-    metadata JSON COMMENT '元数据，JSON格式存储',
+    item_metadata JSON COMMENT '元数据，JSON格式存储',
     is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '是否启用',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -91,6 +91,18 @@ CREATE TABLE entity_tag_mapping (
     INDEX idx_entity_tag (entity_tag_name),
     INDEX idx_entity_type (entity_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='实体标签映射表';
+
+-- 12. 数据项同义词表 (item_synonyms)
+-- 存储数据项的同义词
+CREATE TABLE item_synonyms (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    item_id BIGINT NOT NULL COMMENT '关联的item_data主键ID',
+    synonym VARCHAR(200) NOT NULL COMMENT '同义词',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY uk_item_synonym (item_id, synonym),
+    FOREIGN KEY (item_id) REFERENCES item_data(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='数据项同义词表';
 
 -- 插入示例数据
 -- 标签体系示例数据

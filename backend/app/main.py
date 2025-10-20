@@ -7,13 +7,13 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 from backend.app.core.config import settings
-from backend.app.api import labels, rules, entity_tags, intent_recognition, items
+from backend.app.api import intent_recognition, tag_systems, labels, items, intent_rules
 
 # 创建FastAPI应用实例
 app = FastAPI(
     title="标签体系管理系统",
     description="基于意图识别的智能标签体系管理平台",
-    version="1.0.0",
+    version="2.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -31,11 +31,11 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory="web"), name="static")
 
 # 注册路由
-app.include_router(labels.router, prefix="/api/v1/labels", tags=["标签管理"])
-app.include_router(rules.router, prefix="/api/v1/rules", tags=["规则管理"])
-app.include_router(entity_tags.router, prefix="/api/v1/entity-tags", tags=["实体标签管理"])
+app.include_router(tag_systems.router, prefix="/api/v1/systems", tags=["标签体系"])
+app.include_router(labels.router, prefix="/api/v1/labels", tags=["标签定义"])
+app.include_router(items.router, prefix="/api/v1/items", tags=["实体数据"])
+app.include_router(intent_rules.router, prefix="/api/v1/intent-rules", tags=["意图规则"])
 app.include_router(intent_recognition.router, prefix="/api/v1/intent-recognition", tags=["意图识别"])
-app.include_router(items.router, prefix="/api/v1/items", tags=["数据项管理"])
 
 @app.get("/")
 async def root():
