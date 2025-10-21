@@ -18,22 +18,15 @@ def create_item(item: ItemCreate, db: Session = Depends(get_db)):
 @router.get("/by_label/{label_code}", response_model=ResponseModel)
 def get_items_by_label(label_code: str, db: Session = Depends(get_db)):
     service = ItemService(db)
-    items = service.get_by_label(label_code)
-    # 转换为字典格式
-    items_data = []
-    for item in items:
-        items_data.append({
-            "id": item.id,
-            "item_name": item.item_name,
-            "item_code": item.item_code,
-            "parent_item_code": item.parent_item_code,
-            "label_code": item.label_code,
-            "description": item.description,
-            "is_active": item.is_active,
-            "created_at": item.created_at,
-            "updated_at": item.updated_at,
-            "synonyms": [{"id": s.id, "synonym": s.synonym, "item_code": s.item_code} for s in item.synonyms]
-        })
+    # Service层已经返回了包含parent_item_name的字典列表
+    items_data = service.get_by_label(label_code)
+    # 确保同义词格式正确，使用逗号连接
+    for item in items_data:
+        # 将同义词列表转换为逗号连接的字符串
+        if item.get("synonyms"):
+            item["synonyms_text"] = ", ".join(item["synonyms"])
+        else:
+            item["synonyms_text"] = ""
     return ResponseModel(data=items_data)
 
 @router.get("/children_of/{parent_item_code}", response_model=List[ItemResponse])

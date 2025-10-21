@@ -397,10 +397,12 @@
                 items.forEach(item => {
                     const status = item.is_active ? '启用' : '禁用';
                     const statusClass = item.is_active ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
-                    const synonymsDisplay = item.synonyms.length > 0 
+                    // 使用后端提供的synonyms_text（逗号连接的同义词）或手动连接
+                    const synonymsDisplay = item.synonyms_text || (item.synonyms && item.synonyms.length > 0 
                         ? item.synonyms.map(s => s.synonym).join(', ') 
-                        : '<span class="empty-value">无</span>';
-                    const parentTagDisplay = item.parent_item_code || '<span class="empty-value">无</span>';
+                        : '<span class="empty-value">无</span>');
+                    // 优先显示父级实体名称，如果没有则显示编码
+                    const parentTagDisplay = item.parent_item_name || item.parent_item_code || '<span class="empty-value">无</span>';
 
                     const row = document.createElement('tr');
                     row.className = 'hover:bg-neutral-50 transition-colors';

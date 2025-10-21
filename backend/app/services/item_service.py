@@ -13,8 +13,34 @@ class ItemService:
             query = query.options(joinedload(Item.synonyms))
         return query.filter(Item.item_code == item_code).first()
 
-    def get_by_label(self, label_code: str) -> List[Item]:
-        return self.db.query(Item).options(joinedload(Item.synonyms)).filter(Item.label_code == label_code).all()
+    def get_by_label(self, label_code: str) -> List[dict]:
+        items = self.db.query(Item).options(joinedload(Item.synonyms)).filter(Item.label_code == label_code).all()
+        result = []
+        
+        for item in items:
+            item_dict = {
+                "id": item.id,
+                "item_name": item.item_name,
+                "item_code": item.item_code,
+                "parent_item_code": item.parent_item_code,
+                "parent_item_name": None,
+                "label_code": item.label_code,
+                "description": item.description,
+                "is_active": item.is_active,
+                "created_at": item.created_at,
+                "updated_at": item.updated_at,
+                "synonyms": [s.synonym for s in item.synonyms]
+            }
+            
+            # 获取父级实体名称
+            if item.parent_item_code:
+                parent_item = self.db.query(Item).filter(Item.item_code == item.parent_item_code).first()
+                if parent_item:
+                    item_dict["parent_item_name"] = parent_item.item_name
+            
+            result.append(item_dict)
+        
+        return result
 
     def get_children(self, parent_item_code: str) -> List[Item]:
         return self.db.query(Item).filter(Item.parent_item_code == parent_item_code).all()
