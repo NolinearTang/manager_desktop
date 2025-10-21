@@ -201,6 +201,10 @@ class LabelSystemAPI {
             method: 'DELETE'
         });
     }
+
+    async getItemsForLabel(labelCode) {
+        return this.request(`/items/by_label/${labelCode}`);
+    }
 }
 
 // 创建全局API实例

@@ -19,7 +19,22 @@ def create_item(item: ItemCreate, db: Session = Depends(get_db)):
 def get_items_by_label(label_code: str, db: Session = Depends(get_db)):
     service = ItemService(db)
     items = service.get_by_label(label_code)
-    return ResponseModel(data=items)
+    # 转换为字典格式
+    items_data = []
+    for item in items:
+        items_data.append({
+            "id": item.id,
+            "item_name": item.item_name,
+            "item_code": item.item_code,
+            "parent_item_code": item.parent_item_code,
+            "label_code": item.label_code,
+            "description": item.description,
+            "is_active": item.is_active,
+            "created_at": item.created_at,
+            "updated_at": item.updated_at,
+            "synonyms": [{"id": s.id, "synonym": s.synonym, "item_code": s.item_code} for s in item.synonyms]
+        })
+    return ResponseModel(data=items_data)
 
 @router.get("/children_of/{parent_item_code}", response_model=List[ItemResponse])
 def get_item_children(parent_item_code: str, db: Session = Depends(get_db)):

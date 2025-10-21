@@ -14,7 +14,7 @@ class ItemService:
         return query.filter(Item.item_code == item_code).first()
 
     def get_by_label(self, label_code: str) -> List[Item]:
-        return self.db.query(Item).filter(Item.label_code == label_code).all()
+        return self.db.query(Item).options(joinedload(Item.synonyms)).filter(Item.label_code == label_code).all()
 
     def get_children(self, parent_item_code: str) -> List[Item]:
         return self.db.query(Item).filter(Item.parent_item_code == parent_item_code).all()
