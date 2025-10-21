@@ -4,6 +4,10 @@
 from pydantic_settings import BaseSettings
 from typing import List
 import os
+from pathlib import Path
+
+# Project root is 3 levels up from this file (core -> app -> backend -> root)
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 class Settings(BaseSettings):
     """应用配置类"""
@@ -18,7 +22,7 @@ class Settings(BaseSettings):
     PORT: int = 8000
     
     # 数据库配置
-    DATABASE_URL: str = "sqlite:///./label_system.db"
+    DATABASE_URL: str = f"sqlite:///{PROJECT_ROOT / 'label_system.db'}"
     DATABASE_ECHO: bool = False
     
     # Redis配置

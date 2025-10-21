@@ -384,8 +384,7 @@
             document.getElementById('entity-list').classList.remove('hidden');
             
             try {
-                const response = await window.api.getItemsForLabel(labelCode);
-                const items = response.data || [];
+                const items = await window.api.getItemsForLabel(labelCode);
                 entityItems.innerHTML = '';
                 if (items.length === 0) {
                     entityItems.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center text-neutral-500"><i class="fa fa-inbox fa-lg mb-2"></i><p>该标签下暂无实体数据</p></td></tr>`;
@@ -394,8 +393,10 @@
                 items.forEach(item => {
                     const status = item.is_active ? '启用' : '禁用';
                     const statusClass = item.is_active ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
-                    const synonymsDisplay = item.item_synonym ? item.item_synonym : '<span class="empty-value">无</span>';
-                    const parentTagDisplay = '<span class="empty-value">N/A</span>';
+                    const synonymsDisplay = item.synonyms.length > 0 
+                        ? item.synonyms.map(s => s.synonym).join(', ') 
+                        : '<span class="empty-value">无</span>';
+                    const parentTagDisplay = item.parent_item_code || '<span class="empty-value">无</span>';
 
                     const row = document.createElement('tr');
                     row.className = 'hover:bg-neutral-50 transition-colors';

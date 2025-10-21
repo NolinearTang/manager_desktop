@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from backend.app.core.database import get_db
 from backend.app.services.item_service import ItemService
-from backend.app.core.schemas import ItemCreate, ItemUpdate, ItemResponse
+from backend.app.core.schemas import ItemCreate, ItemUpdate, ItemResponse, ResponseModel
 
 router = APIRouter()
 
@@ -15,10 +15,11 @@ def create_item(item: ItemCreate, db: Session = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/by_label/{label_code}", response_model=List[ItemResponse])
+@router.get("/by_label/{label_code}", response_model=ResponseModel)
 def get_items_by_label(label_code: str, db: Session = Depends(get_db)):
     service = ItemService(db)
-    return service.get_by_label(label_code)
+    items = service.get_by_label(label_code)
+    return ResponseModel(data=items)
 
 @router.get("/children_of/{parent_item_code}", response_model=List[ItemResponse])
 def get_item_children(parent_item_code: str, db: Session = Depends(get_db)):
