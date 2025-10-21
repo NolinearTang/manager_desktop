@@ -35,8 +35,36 @@ def init_database():
         # 1. 插入标签体系 (TagSystem)
         print("  - 正在插入 TagSystem...")
         tag_systems = [
-            TagSystem(system_name="汇川产品实体体系", system_code="product_entity_system", system_type="entity"),
-            TagSystem(system_name="知识问答意图体系", system_code="intent_system", system_type="intent"),
+            TagSystem(
+                system_name="汇川产品实体体系", 
+                system_code="product_entity_system", 
+                system_type="entity",
+                description="汇川技术产品的层级标签体系，包括产品线、产品系列、产品型号、产品规格等实体标签"
+            ),
+            TagSystem(
+                system_name="知识问答意图体系", 
+                system_code="intent_system", 
+                system_type="intent",
+                description="用于识别用户知识问答相关的意图，包括故障码查询、参数查询等意图标签"
+            ),
+            TagSystem(
+                system_name="硬工委实体标签体系", 
+                system_code="hardware_committee_entity_system", 
+                system_type="entity",
+                description="硬工委相关的实体标签体系，包括委员会成员、组织架构、项目分类等实体标签"
+            ),
+            TagSystem(
+                system_name="参数实体标签体系", 
+                system_code="parameter_entity_system", 
+                system_type="entity",
+                description="产品参数相关的实体标签体系，包括参数类型、参数分组、参数配置等实体标签"
+            ),
+            TagSystem(
+                system_name="易知助手意图体系", 
+                system_code="yizhi_assistant_intent_system", 
+                system_type="intent",
+                description="易知助手的意图识别体系，包括问候、咨询、投诉、建议等对话意图标签"
+            ),
         ]
         db.add_all(tag_systems)
         db.commit()

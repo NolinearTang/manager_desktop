@@ -595,7 +595,7 @@
             // --- Add Tag Modal Logic ---
             let parentLabelChoices = null;
 
-            async function openAddTagModal() {
+            async function openAddTagModal(parentCode = null) {
                 const modal = document.getElementById('add-tag-modal');
                 const select = document.getElementById('parent-label-code');
                 modal.classList.remove('hidden');
@@ -612,9 +612,11 @@
                     // Prepend the initial empty choice
                     choices.unshift({ value: '', label: '无 (设为顶级标签)' });
                     parentLabelChoices.setChoices(choices, 'value', 'label', true);
-                    // Set current tag as default parent if it exists
-                    if(currentLabelCode) {
-                        parentLabelChoices.setValue(currentLabelCode);
+                    // Set parent code if provided, otherwise use current tag
+                    if(parentCode) {
+                        parentLabelChoices.setValueByChoice(parentCode);
+                    } else if(currentLabelCode) {
+                        parentLabelChoices.setValueByChoice(currentLabelCode);
                     }
                 } catch (error) {
                     console.error("Failed to load parent labels", error);
@@ -623,9 +625,11 @@
 
             function closeAddTagModal() {
                 document.getElementById('add-tag-modal').classList.add('hidden');
+                // 清空表单
+                document.getElementById('add-tag-form').reset();
             }
 
-            document.getElementById('add-tag-button').addEventListener('click', openAddTagModal);
+            // 绑定取消按钮事件
             document.getElementById('cancel-add-tag').addEventListener('click', closeAddTagModal);
 
             document.getElementById('add-tag-form').addEventListener('submit', async function(e) {

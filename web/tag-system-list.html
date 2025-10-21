@@ -234,62 +234,8 @@
     <!-- JavaScript 功能实现 -->
     <script>
         // 标签体系数据
-        let tagSystems = [
-            {
-                id: 1,
-                name: '用户意图识别体系',
-                type: 'intent',
-                description: '用于识别和分类用户的各种意图，包括查询、购买、咨询等行为意图标签。',
-                tagCount: 15,
-                createTime: '2024-01-15',
-                status: '启用'
-            },
-            {
-                id: 2,
-                name: '客服对话意图体系',
-                type: 'intent',
-                description: '专门用于客服对话场景的意图识别，包括投诉、咨询、建议等对话意图分类。',
-                tagCount: 8,
-                createTime: '2024-01-10',
-                status: '启用'
-            },
-            {
-                id: 3,
-                name: '产品标签体系',
-                type: 'entity',
-                description: '管理产品的层级标签体系，包括产品类别、产品线、产品系列、产品型号等实体标签。',
-                tagCount: 45,
-                createTime: '2024-01-20',
-                status: '启用'
-            },
-            {
-                id: 4,
-                name: '客户标签体系',
-                type: 'entity',
-                description: '客户相关的实体标签体系，包括客户类型、行业分类、地区分布等客户实体标签。',
-                tagCount: 23,
-                createTime: '2024-01-18',
-                status: '启用'
-            },
-            {
-                id: 5,
-                name: '供应商标签体系',
-                type: 'entity',
-                description: '供应商相关的实体标签体系，包括供应商类型、资质等级、合作状态等供应商实体标签。',
-                tagCount: 18,
-                createTime: '2024-01-12',
-                status: '启用'
-            },
-            {
-                id: 6,
-                name: '营销活动意图体系',
-                type: 'intent',
-                description: '营销活动相关的意图识别体系，包括推广、促销、品牌宣传等营销意图标签。',
-                tagCount: 12,
-                createTime: '2024-01-08',
-                status: '启用'
-            }
-        ];
+        let tagSystems = [];
+        const API_BASE_URL = 'http://localhost:8000/api/v1';
 
         let currentFilter = 'all';
         let currentSearchTerm = '';
@@ -297,7 +243,7 @@
 
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
-            renderTagSystems();
+            loadTagSystems();
             
             // 标签分类切换功能
             const tabs = document.querySelectorAll('[id$="-tab"]');
@@ -331,6 +277,22 @@
             });
         });
 
+        // 从后端加载标签体系数据
+        async function loadTagSystems() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/systems`);
+                if (!response.ok) {
+                    throw new Error('Failed to load tag systems');
+                }
+                const data = await response.json();
+                tagSystems = data;
+                renderTagSystems();
+            } catch (error) {
+                console.error('Error loading tag systems:', error);
+                alert('加载标签体系数据失败，请检查后端服务是否启动');
+            }
+        }
+
         // 渲染标签体系列表
         function renderTagSystems() {
             const tbody = document.getElementById('tag-systems-list');
@@ -338,10 +300,10 @@
             
             // 过滤数据
             let filteredSystems = tagSystems.filter(system => {
-                const matchesFilter = currentFilter === 'all' || system.type === currentFilter;
+                const matchesFilter = currentFilter === 'all' || system.system_type === currentFilter;
                 const matchesSearch = !currentSearchTerm || 
-                    system.name.toLowerCase().includes(currentSearchTerm) ||
-                    system.description.toLowerCase().includes(currentSearchTerm);
+                    system.system_name.toLowerCase().includes(currentSearchTerm) ||
+                    (system.description && system.description.toLowerCase().includes(currentSearchTerm));
                 return matchesFilter && matchesSearch;
             });
 
@@ -354,16 +316,17 @@
             emptyState.classList.add('hidden');
             
             tbody.innerHTML = filteredSystems.map(system => {
-                const typeText = system.type === 'intent' ? '意图标签体系' : '实体标签体系';
-                const typeClass = system.type === 'intent' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
-                const statusClass = system.status === '启用' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+                const typeText = system.system_type === 'intent' ? '意图标签体系' : '实体标签体系';
+                const typeClass = system.system_type === 'intent' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800';
+                const statusClass = 'bg-green-100 text-green-800'; // 默认启用状态
+                const createTime = new Date(system.created_at).toLocaleDateString('zh-CN');
                 
                 return `
                     <tr class="hover:bg-neutral-50 transition-colors">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="text-sm font-medium text-neutral-900 cursor-pointer hover:text-primary" onclick="openTagSystem('${system.type}', '${system.name}')">
-                                    ${system.name}
+                                <div class="text-sm font-medium text-neutral-900 cursor-pointer hover:text-primary" onclick="openTagSystem('${system.system_type}', '${system.system_name}')">
+                                    ${system.system_name}
                                 </div>
                             </div>
                         </td>
@@ -373,25 +336,25 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm text-neutral-500 max-w-xs truncate" title="${system.description}">
-                                ${system.description}
+                            <div class="text-sm text-neutral-500 max-w-xs truncate" title="${system.description || ''}">
+                                ${system.description || ''}
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-neutral-900">${system.tagCount}个标签</div>
+                            <div class="text-sm text-neutral-900">-</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-neutral-500">${system.createTime}</div>
+                            <div class="text-sm text-neutral-500">${createTime}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 py-1 text-xs font-medium rounded-full ${statusClass}">
-                                ${system.status}
+                                启用
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end space-x-3">
-                                <button onclick="editTagSystem(${system.id})" class="text-primary hover:text-primary/80">编辑</button>
-                                <button onclick="deleteTagSystem(${system.id}, '${system.name}')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="editTagSystem('${system.system_code}')" class="text-primary hover:text-primary/80">编辑</button>
+                                <button onclick="deleteTagSystem('${system.system_code}', '${system.system_name}')" class="text-red-600 hover:text-red-700">删除</button>
                             </div>
                         </td>
                     </tr>
@@ -400,13 +363,18 @@
         }
 
         // 打开标签体系详情页面
-        function openTagSystem(type, name) {
-            if (type === 'entity' && name === '产品标签体系') {
+        function openTagSystem(type, system_name) {
+            // 实体标签体系跳转
+            if (type === 'entity' && (system_name === '汇川产品实体体系' || system_name === '产品标签体系')) {
                 window.location.href = 'product-tag-system-updated.html';
-            } else if (type === 'intent' && name === '客服对话意图体系') {
+            } 
+            // 意图标签体系跳转
+            else if (type === 'intent' && (system_name === '知识问答意图体系' || system_name === '客服对话意图体系')) {
                 window.location.href = 'customer-service-intent-system.html';
-            } else {
-                alert(`正在打开 ${name} 详情页面...`);
+            } 
+            // 其他体系暂时提示
+            else {
+                alert(`正在打开 ${system_name} 详情页面...\n该页面正在开发中`);
             }
         }
 
@@ -422,38 +390,55 @@
         }
 
         // 新增标签体系
-        function addTagSystem() {
-            const name = document.getElementById('system-name').value;
-            const type = document.getElementById('system-type').value;
+        async function addTagSystem() {
+            const system_name = document.getElementById('system-name').value;
+            const system_type = document.getElementById('system-type').value;
             const description = document.getElementById('system-description').value;
+            
+            // 生成system_code (简单实现：使用时间戳)
+            const system_code = `SYS_${Date.now()}`;
 
             const newSystem = {
-                id: Date.now(),
-                name: name,
-                type: type,
-                description: description,
-                tagCount: 0,
-                createTime: new Date().toISOString().split('T')[0],
-                status: '启用'
+                system_name: system_name,
+                system_code: system_code,
+                system_type: system_type,
+                description: description
             };
 
-            tagSystems.push(newSystem);
-            renderTagSystems();
-            closeAddModal();
+            try {
+                const response = await fetch(`${API_BASE_URL}/systems`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newSystem)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create tag system');
+                }
+                
+                await loadTagSystems();
+                closeAddModal();
+                alert('标签体系创建成功！');
+            } catch (error) {
+                console.error('Error creating tag system:', error);
+                alert('创建标签体系失败，请重试');
+            }
         }
 
         // 编辑标签体系
-        function editTagSystem(id) {
-            const system = tagSystems.find(s => s.id === id);
+        function editTagSystem(system_code) {
+            const system = tagSystems.find(s => s.system_code === system_code);
             if (system) {
-                alert(`编辑功能开发中...\n标签体系: ${system.name}`);
+                alert(`编辑功能开发中...\n标签体系: ${system.system_name}`);
             }
         }
 
         // 删除标签体系
-        function deleteTagSystem(id, name) {
-            deleteSystemId = id;
-            document.getElementById('delete-system-name').textContent = name;
+        function deleteTagSystem(system_code, system_name) {
+            deleteSystemId = system_code;
+            document.getElementById('delete-system-name').textContent = system_name;
             document.getElementById('delete-modal').classList.remove('hidden');
         }
 
@@ -464,11 +449,24 @@
         }
 
         // 确认删除
-        function confirmDelete() {
+        async function confirmDelete() {
             if (deleteSystemId) {
-                tagSystems = tagSystems.filter(s => s.id !== deleteSystemId);
-                renderTagSystems();
-                closeDeleteModal();
+                try {
+                    const response = await fetch(`${API_BASE_URL}/systems/${deleteSystemId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to delete tag system');
+                    }
+                    
+                    await loadTagSystems();
+                    closeDeleteModal();
+                    alert('标签体系删除成功！');
+                } catch (error) {
+                    console.error('Error deleting tag system:', error);
+                    alert('删除标签体系失败，请重试');
+                }
             }
         }
     </script>
