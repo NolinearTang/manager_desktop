@@ -206,7 +206,7 @@
                                     <tr>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">规则内容</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">规则类型</th>
-                                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">状态</th>
+                                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">是否启用</th>
                                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">操作</th>
                                     </tr>
                                 </thead>
@@ -1164,15 +1164,15 @@
         }
 
         // 切换规则状态
-        async function toggleRuleStatus(ruleId, isActive) {
+        async function toggleRuleStatus(ruleId, is_active) {
             try {
-                await window.api.updateRule(ruleId, { is_active: isActive });
-                console.log(`规则 ${ruleId} 状态已更新为: ${isActive ? '启用' : '禁用'}`);
+                await window.api.updateRule(ruleId, { is_active: is_active });
+                console.log(`规则 ${ruleId} 状态已更新为: ${is_active ? '可用' : '不可用'}`);
                 
                 // 更新本地数据
                 const rule = currentRules.find(r => r.id === ruleId);
                 if (rule) {
-                    rule.is_active = isActive;
+                    rule.is_active = is_active;
                 }
             } catch (error) {
                 console.error('更新规则状态失败:', error);

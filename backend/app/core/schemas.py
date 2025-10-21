@@ -71,7 +71,7 @@ class ItemBase(BaseModel):
     parent_item_code: Optional[str] = Field(None, description="父级实体编码")
     label_code: str = Field(..., description="所属标签编码")
     description: Optional[str] = Field(None, description="实体描述")
-    is_active: bool = Field(True, description="是否启用")
+    is_active: bool = Field(True, description="是否可用")
 
 class ItemCreate(ItemBase):
     synonyms: List[str] = Field([], description="同义词列表")
@@ -100,7 +100,7 @@ class IntentRuleBase(BaseModel):
     rule_type: str = Field(..., description="规则类型")
     rule_entity: str = Field(..., description="规则实体 (内容)")
     label_code: str = Field(..., description="关联的意图标签编码")
-    is_active: bool = Field(True, description="是否启用")
+    is_active: bool = Field(True, description="是否可用")
 
 class IntentRuleCreate(IntentRuleBase):
     pass

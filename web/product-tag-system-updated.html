@@ -140,12 +140,12 @@
                 <!-- 系统标识 -->
                 <div class="flex items-center">
                     <i class="fa fa-cogs text-primary text-2xl mr-2"></i>
-                    <span class="text-xl font-semibold text-neutral-800">实体标签体系</span>
+                    <span id="header-system-name" class="text-xl font-semibold text-neutral-800">加载中...</span>
                 </div>
                 
                 <!-- 功能导航 -->
                 <nav class="hidden md:flex items-center space-x-8">
-                    <a href="javascript:history.back()" class="text-neutral-600 hover:text-primary py-5 transition-colors">标签体系列表</a>
+                    <a href="tag-system-list.html" class="text-neutral-600 hover:text-primary py-5 transition-colors">标签体系列表</a>
                     <a href="#" class="text-primary font-medium border-b-2 border-primary py-5">实体标签管理</a>
                     <a href="#" class="text-neutral-600 hover:text-primary py-5 transition-colors">系统设置</a>
                 </nav>
@@ -168,9 +168,9 @@
     <div class="bg-white border-b border-neutral-200">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <nav class="flex items-center space-x-2 text-sm">
-                <a href="javascript:history.back()" class="text-neutral-500 hover:text-primary transition-colors">标签体系列表</a>
+                <a href="tag-system-list.html" class="text-neutral-500 hover:text-primary transition-colors">标签体系列表</a>
                 <i class="fa fa-chevron-right text-neutral-400 text-xs"></i>
-                <span class="text-neutral-800 font-medium">产品标签体系</span>
+                <span id="breadcrumb-system-name" class="text-neutral-800 font-medium">加载中...</span>
             </nav>
         </div>
     </div>
@@ -225,7 +225,7 @@
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">实体编码</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">父级标签</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">同义词</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">状态</th>
+                                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-neutral-500 uppercase tracking-wider">是否启用</th>
                                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">操作</th>
                                     </tr>
                                 </thead>
@@ -285,6 +285,62 @@
                     </button>
                     <button type="submit" form="add-entity-form" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
                         确定新增
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑实体弹窗 -->
+    <div id="edit-entity-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+            <div class="p-6 border-b border-neutral-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-neutral-800">编辑实体</h3>
+                    <button onclick="closeEditEntityModal()" class="text-neutral-400 hover:text-neutral-600">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <form id="edit-entity-form" class="space-y-4">
+                    <input type="hidden" id="edit-item-id">
+                    <input type="hidden" id="edit-item-code">
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">实体名称 <span class="text-error">*</span></label>
+                        <input type="text" id="edit-item-name" required class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">父级实体编码</label>
+                        <input type="text" id="edit-parent-item-code" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="可选，留空表示无父级">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">描述</label>
+                        <textarea id="edit-description" rows="3" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="可选"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">同义词</label>
+                        <input type="text" id="edit-synonyms" class="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary" placeholder="多个同义词用逗号分隔">
+                        <p class="text-xs text-neutral-500 mt-1">例如：SV660N,SV660N通用伺服</p>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input type="checkbox" id="edit-is-active" class="h-4 w-4 rounded text-primary focus:ring-primary mr-2">
+                        <label for="edit-is-active" class="text-sm font-medium text-neutral-700">启用</label>
+                    </div>
+                </form>
+            </div>
+            <div class="p-6 border-t border-neutral-200 bg-neutral-50 rounded-b-lg">
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeEditEntityModal()" class="px-4 py-2 text-neutral-600 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                        取消
+                    </button>
+                    <button type="submit" form="edit-entity-form" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                        保存修改
                     </button>
                 </div>
             </div>
@@ -394,8 +450,6 @@
                     return;
                 }
                 items.forEach(item => {
-                    const status = item.is_active ? '启用' : '禁用';
-                    const statusClass = item.is_active ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
                     // 使用后端提供的synonyms_text（逗号连接的同义词）或手动连接
                     const synonymsDisplay = item.synonyms_text || (item.synonyms && item.synonyms.length > 0 
                         ? item.synonyms.map(s => s.synonym).join(', ') 
@@ -410,10 +464,15 @@
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">${item.item_code || '<span class="empty-value">无</span>'}</td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-700">${parentTagDisplay}</td>
                       <td class="px-6 py-4 text-sm text-neutral-500">${synonymsDisplay}</td>
-                      <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">${status}</span></td>
+                      <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" ${item.is_active ? 'checked' : ''} onchange="toggleItemStatus(${item.id}, this.checked)" class="sr-only peer">
+                          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                      </td>
                       <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div class="flex justify-end space-x-3">
-                          <button class="text-primary hover:text-primary/80">编辑</button>
+                          <button class="text-primary hover:text-primary/80 edit-button" data-item='${JSON.stringify(item)}'>编辑</button>
                           <button class="text-error hover:text-error/80 delete-button" data-item-id="${item.id}">删除</button>
                         </div>
                       </td>
@@ -482,11 +541,10 @@
                 const entitySystem = systems.find(s => s.system_code === 'product_entity_system') || 
                                    systems.find(s => s.system_type === 'entity');
                 
-                if (entitySystem) {
-                    systemTitle.textContent = entitySystem.system_name;
-                } else {
-                    systemTitle.textContent = '实体标签体系';
-                }
+                const systemName = entitySystem ? entitySystem.system_name : '实体标签体系';
+                systemTitle.textContent = systemName;
+                document.getElementById('header-system-name').textContent = systemName;
+                document.getElementById('breadcrumb-system-name').textContent = systemName;
 
                 // 加载标签树
                 const response = await window.api.getLabelTree({ label_type: 'entity' });
@@ -542,8 +600,34 @@
                 }
             });
 
+            // --- 切换实体状态 ---
+            window.toggleItemStatus = async function(itemId, isActive) {
+                try {
+                    await window.api.request(`/items/id/${itemId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ is_active: isActive })
+                    });
+                    console.log(`实体 ${itemId} 状态已更新为: ${isActive ? '启用' : '禁用'}`);
+                } catch (error) {
+                    console.error('更新实体状态失败:', error);
+                    alert('更新实体状态失败');
+                    // 重新加载数据以恢复状态
+                    if (currentLabelCode) {
+                        await loadEntityData(currentLabelCode);
+                    }
+                }
+            };
+
             // --- Static Event Listeners ---
             document.getElementById('entity-items').addEventListener('click', async function(e) {
+                // 处理编辑按钮点击
+                if (e.target && e.target.classList.contains('edit-button')) {
+                    const button = e.target;
+                    const itemData = JSON.parse(button.dataset.item);
+                    openEditEntityModal(itemData);
+                }
+                
+                // 处理删除按钮点击
                 if (e.target && e.target.classList.contains('delete-button')) {
                     const button = e.target;
                     const itemId = button.dataset.itemId;
@@ -605,6 +689,70 @@
             document.getElementById('add-entity-button').addEventListener('click', openAddEntityModal);
             document.getElementById('master-status-switch').addEventListener('change', function(e) {
                 document.querySelectorAll('.entity-status-switch').forEach(sw => { sw.checked = e.target.checked; });
+            });
+
+            // --- Edit Entity Modal Logic ---
+            function openEditEntityModal(item) {
+                const modal = document.getElementById('edit-entity-modal');
+                document.getElementById('edit-item-id').value = item.id;
+                document.getElementById('edit-item-code').value = item.item_code;
+                document.getElementById('edit-item-name').value = item.item_name;
+                document.getElementById('edit-parent-item-code').value = item.parent_item_code || '';
+                document.getElementById('edit-description').value = item.description || '';
+                
+                // 处理同义词显示
+                let synonymsText = '';
+                if (item.synonyms && Array.isArray(item.synonyms) && item.synonyms.length > 0) {
+                    synonymsText = item.synonyms.map(s => typeof s === 'string' ? s : s.synonym).join(',');
+                } else if (item.synonyms_text) {
+                    synonymsText = item.synonyms_text;
+                }
+                document.getElementById('edit-synonyms').value = synonymsText;
+                
+                document.getElementById('edit-is-active').checked = item.is_active;
+                modal.classList.remove('hidden');
+            }
+
+            window.closeEditEntityModal = function() {
+                document.getElementById('edit-entity-modal').classList.add('hidden');
+                document.getElementById('edit-entity-form').reset();
+            };
+
+            document.getElementById('edit-entity-form').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const submitButton = this.querySelector('button[type="submit"]');
+                
+                try {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>保存中...';
+                    
+                    const itemId = document.getElementById('edit-item-id').value;
+                    const synonymsInput = document.getElementById('edit-synonyms').value.trim();
+                    const synonyms = synonymsInput ? synonymsInput.split(',').map(s => s.trim()).filter(s => s) : [];
+                    
+                    const updateData = {
+                        item_name: document.getElementById('edit-item-name').value.trim(),
+                        parent_item_code: document.getElementById('edit-parent-item-code').value.trim() || null,
+                        description: document.getElementById('edit-description').value.trim() || null,
+                        is_active: document.getElementById('edit-is-active').checked,
+                        synonyms: synonyms
+                    };
+                    
+                    await window.api.request(`/items/id/${itemId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(updateData)
+                    });
+                    
+                    alert('实体更新成功！');
+                    closeEditEntityModal();
+                    await loadEntityData(currentLabelCode);
+                } catch (error) {
+                    console.error('更新实体失败:', error);
+                    alert(`更新实体失败: ${error.message}`);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '保存修改';
+                }
             });
 
             // --- Add Tag Modal Logic ---
