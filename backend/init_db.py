@@ -94,6 +94,7 @@ def init_database():
             
             # 3级标签 - 其他知识问答下的子标签
             Label(label_name="产品查询", label_code="intent_label_10101", parent_label_code="intent_label_101", system_code="intent_system", level=3, description="产品信息查询"),
+            Label(label_name="价格咨询", label_code="intent_label_10102", parent_label_code="intent_label_101", system_code="intent_system", level=3, description="产品价格咨询"),
             
             # ========== 产品实体体系标签 (前缀: entity_label_) ==========
             Label(label_name='产品线', label_code='entity_label_001', system_code='product_entity_system', level=1, description='产品线分类'),
@@ -129,7 +130,7 @@ def init_database():
             # 故障码类规则
             IntentRule(
                 rule_code="intent_rule_001",
-                rule_type="keyword",
+                rule_type="keyword_whitelist",
                 rule_entity="故障,报警,错误代码,故障码",
                 label_code="intent_label_104",
                 is_active=True
@@ -144,7 +145,7 @@ def init_database():
             # 产品查询规则
             IntentRule(
                 rule_code="intent_rule_003",
-                rule_type="keyword",
+                rule_type="keyword_whitelist",
                 rule_entity="产品,型号,规格,参数",
                 label_code="intent_label_10101",
                 is_active=True
@@ -152,7 +153,7 @@ def init_database():
             # ST代码规则
             IntentRule(
                 rule_code="intent_rule_004",
-                rule_type="keyword",
+                rule_type="keyword_whitelist",
                 rule_entity="ST代码,ST语言,结构化文本",
                 label_code="intent_label_201",
                 is_active=True
@@ -160,9 +161,83 @@ def init_database():
             # JS代码规则
             IntentRule(
                 rule_code="intent_rule_005",
-                rule_type="keyword",
+                rule_type="keyword_whitelist",
                 rule_entity="JavaScript,JS代码,前端代码",
                 label_code="intent_label_202",
+                is_active=True
+            ),
+            # 价格咨询规则 - 表达式类型（使用${实体标签}引用）
+            IntentRule(
+                rule_code="intent_rule_006",
+                rule_type="expression",
+                rule_entity="${产品型号}价格",
+                label_code="intent_label_10102",
+                is_active=True
+            ),
+            IntentRule(
+                rule_code="intent_rule_007",
+                rule_type="expression",
+                rule_entity="${产品型号}售价",
+                label_code="intent_label_10102",
+                is_active=True
+            ),
+            IntentRule(
+                rule_code="intent_rule_008",
+                rule_type="expression",
+                rule_entity="${产品型号}多少钱",
+                label_code="intent_label_10102",
+                is_active=True
+            ),
+            IntentRule(
+                rule_code="intent_rule_009",
+                rule_type="expression",
+                rule_entity="${产品型号}的价格是多少",
+                label_code="intent_label_10102",
+                is_active=True
+            ),
+            IntentRule(
+                rule_code="intent_rule_010",
+                rule_type="expression",
+                rule_entity="请问${产品型号}售价多少",
+                label_code="intent_label_10102",
+                is_active=True
+            ),
+            # 价格咨询规则 - 表达句类型（具体的完整句子）
+            IntentRule(
+                rule_code="intent_rule_011",
+                rule_type="sentence",
+                rule_entity="sv660N多少钱",
+                label_code="intent_label_10102",
+                is_active=True
+            ),
+            IntentRule(
+                rule_code="intent_rule_012",
+                rule_type="sentence",
+                rule_entity="sv660N价格",
+                label_code="intent_label_10102",
+                is_active=True
+            ),
+            IntentRule(
+                rule_code="intent_rule_013",
+                rule_type="sentence",
+                rule_entity="sv660nd官方价格",
+                label_code="intent_label_10102",
+                is_active=True
+            ),
+            # 价格咨询规则 - 关键词白名单（命中一定是该意图）
+            IntentRule(
+                rule_code="intent_rule_014",
+                rule_type="keyword_whitelist",
+                rule_entity="查价格,价格咨询",
+                label_code="intent_label_10102",
+                is_active=True
+            ),
+            # 价格咨询规则 - 关键词黑名单（命中一定不是该意图）
+            IntentRule(
+                rule_code="intent_rule_015",
+                rule_type="keyword_blacklist",
+                rule_entity="价格贵",
+                label_code="intent_label_10102",
                 is_active=True
             ),
         ]

@@ -7,6 +7,9 @@ class IntentRuleService:
     def __init__(self, db: Session):
         self.db = db
 
+    def get_by_id(self, rule_id: int) -> Optional[IntentRule]:
+        return self.db.query(IntentRule).filter(IntentRule.id == rule_id).first()
+
     def get_by_code(self, rule_code: str) -> Optional[IntentRule]:
         return self.db.query(IntentRule).filter(IntentRule.rule_code == rule_code).first()
 
@@ -23,6 +26,19 @@ class IntentRuleService:
         self.db.refresh(db_rule)
         return db_rule
 
+    def update_by_id(self, rule_id: int, rule_update: IntentRuleUpdate) -> Optional[IntentRule]:
+        db_rule = self.get_by_id(rule_id)
+        if not db_rule:
+            return None
+        
+        update_data = rule_update.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(db_rule, field, value)
+            
+        self.db.commit()
+        self.db.refresh(db_rule)
+        return db_rule
+
     def update(self, rule_code: str, rule_update: IntentRuleUpdate) -> Optional[IntentRule]:
         db_rule = self.get_by_code(rule_code)
         if not db_rule:
@@ -35,6 +51,15 @@ class IntentRuleService:
         self.db.commit()
         self.db.refresh(db_rule)
         return db_rule
+
+    def delete_by_id(self, rule_id: int) -> bool:
+        db_rule = self.get_by_id(rule_id)
+        if not db_rule:
+            return False
+        
+        self.db.delete(db_rule)
+        self.db.commit()
+        return True
 
     def delete(self, rule_code: str) -> bool:
         db_rule = self.get_by_code(rule_code)

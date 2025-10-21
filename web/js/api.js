@@ -93,35 +93,35 @@ class LabelSystemAPI {
      */
     async getRules(params = {}) {
         const queryString = new URLSearchParams(params).toString();
-        return this.request(`/rules?${queryString}`);
+        return this.request(`/intent-rules?${queryString}`);
     }
 
     async getRuleById(id) {
-        return this.request(`/rules/${id}`);
+        return this.request(`/intent-rules/id/${id}`);
     }
 
     async createRule(ruleData) {
-        return this.request('/rules', {
+        return this.request('/intent-rules', {
             method: 'POST',
             body: JSON.stringify(ruleData)
         });
     }
 
     async updateRule(id, ruleData) {
-        return this.request(`/rules/${id}`, {
+        return this.request(`/intent-rules/id/${id}`, {
             method: 'PUT',
             body: JSON.stringify(ruleData)
         });
     }
 
     async deleteRule(id) {
-        return this.request(`/rules/${id}`, {
+        return this.request(`/intent-rules/id/${id}`, {
             method: 'DELETE'
         });
     }
 
     async getRulesByLabelCode(labelCode) {
-        return this.request(`/rules/by_label_code/${labelCode}`);
+        return this.request(`/intent-rules/by_label/${labelCode}`);
     }
 
     /**
