@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>客服对话意图体系 - 意图标签体系详情</title>
+    <title>意图标签体系详情</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="js/api.js"></script>
@@ -79,7 +79,7 @@
                 <!-- 系统标识 -->
                 <div class="flex items-center">
                     <i class="fa fa-comments-o text-primary text-2xl mr-2"></i>
-                    <span class="text-xl font-semibold text-neutral-800">客服对话意图体系</span>
+                    <span id="header-title" class="text-xl font-semibold text-neutral-800">意图标签体系</span>
                 </div>
                 
                 <!-- 功能导航 -->
@@ -109,7 +109,7 @@
             <nav class="flex items-center space-x-2 text-sm">
                 <a href="javascript:history.back()" class="text-neutral-500 hover:text-primary transition-colors">标签体系列表</a>
                 <i class="fa fa-chevron-right text-neutral-400 text-xs"></i>
-                <span class="text-neutral-800 font-medium">客服对话意图体系</span>
+                <span id="breadcrumb-title" class="text-neutral-800 font-medium">意图标签体系</span>
             </nav>
         </div>
     </div>
@@ -122,8 +122,7 @@
                 <div class="bg-white rounded-lg card-shadow h-full flex flex-col">
                     <!-- 标签树标题 -->
                     <div class="p-4 border-b border-neutral-200">
-                        <h2 class="text-lg font-semibold text-neutral-800">意图标签树</h2>
-                        <p class="text-xs text-neutral-500 mt-1">客服对话意图体系 - 6大类一级意图</p>
+                        <h2 id="system-title" class="text-lg font-semibold text-neutral-800">加载中...</h2>
                     </div>
                     
                     <!-- 标签树内容 -->
@@ -735,7 +734,31 @@
         
         // 初始化标签树
         async function initializeLabelTree() {
+            const systemTitle = document.getElementById('system-title');
+            const headerTitle = document.getElementById('header-title');
+            const breadcrumbTitle = document.getElementById('breadcrumb-title');
+            
             try {
+                // 获取标签体系信息
+                const systemsResponse = await window.api.getTagSystems();
+                const systems = systemsResponse || [];
+                // 查找意图类型的标签体系（优先使用"知识问答意图体系"）
+                const intentSystem = systems.find(s => s.system_code === 'intent_system') || 
+                                   systems.find(s => s.system_type === 'intent');
+                
+                if (intentSystem) {
+                    const systemName = intentSystem.system_name;
+                    systemTitle.textContent = systemName;
+                    headerTitle.textContent = systemName;
+                    breadcrumbTitle.textContent = systemName;
+                    document.title = `${systemName} - 意图标签体系详情`;
+                } else {
+                    systemTitle.textContent = '意图标签体系';
+                    headerTitle.textContent = '意图标签体系';
+                    breadcrumbTitle.textContent = '意图标签体系';
+                }
+
+                // 加载标签树
                 const labelTree = await window.dataManager.getLabelTree({ label_type: 'intent' });
                 const container = document.querySelector("#label-tree-container ul");
                 container.innerHTML = ''; // 清空静态内容
@@ -743,6 +766,9 @@
                 setupTagEventListeners(); // 重新绑定事件
             } catch (error) {
                 console.error('初始化标签树失败:', error);
+                systemTitle.textContent = '意图标签体系';
+                headerTitle.textContent = '意图标签体系';
+                breadcrumbTitle.textContent = '意图标签体系';
             }
         }
 

@@ -72,32 +72,53 @@ def init_database():
         # 2. 插入标签定义 (Label)
         print("  - 正在插入 Label...")
         labels = [
-            # 意图体系
-            Label(label_name="知识问答", label_code="knowledge_qa", system_code="intent_system", level=1),
-            Label(label_name="故障码查询", label_code="fault_code_query", parent_label_code="knowledge_qa", system_code="intent_system", level=2),
-            # 产品实体体系
-            Label(label_name='产品线', label_code='product_line', system_code='product_entity_system', level=1),
-            Label(label_name="故障码", label_code="error_code", system_code="product_entity_system", level=1),
-            Label(label_name="指令信息", label_code="instruct_code", system_code="product_entity_system", level=1),
-            Label(label_name='产品系列', label_code='product_series', parent_label_code='product_line', system_code='product_entity_system', level=2),
-            Label(label_name='产品型号', label_code='product_model', parent_label_code='product_series', system_code='product_entity_system', level=3),
-            Label(label_name='产品规格', label_code='product_spec', parent_label_code='product_model', system_code='product_entity_system', level=4),
+            # ========== 意图体系标签 (前缀: intent_label_) ==========
+            # 1级标签
+            Label(label_name="知识问答", label_code="intent_label_001", system_code="intent_system", level=1, description="知识问答相关意图"),
+            Label(label_name="代码类", label_code="intent_label_002", system_code="intent_system", level=1, description="代码编写相关意图"),
+            Label(label_name="无意义", label_code="intent_label_003", system_code="intent_system", level=1, description="无意义对话"),
+            Label(label_name="身份认知", label_code="intent_label_004", system_code="intent_system", level=1, description="身份认知相关"),
+            Label(label_name="有害", label_code="intent_label_005", system_code="intent_system", level=1, description="有害内容"),
+            Label(label_name="其他", label_code="intent_label_006", system_code="intent_system", level=1, description="其他意图"),
+            
+            # 2级标签 - 知识问答下的子标签
+            Label(label_name="其他知识问答", label_code="intent_label_101", parent_label_code="intent_label_001", system_code="intent_system", level=2, description="其他类型的知识问答"),
+            Label(label_name="故障类", label_code="intent_label_102", parent_label_code="intent_label_001", system_code="intent_system", level=2, description="故障相关问答"),
+            Label(label_name="通识类", label_code="intent_label_103", parent_label_code="intent_label_001", system_code="intent_system", level=2, description="通用知识问答"),
+            Label(label_name="故障码类", label_code="intent_label_104", parent_label_code="intent_label_001", system_code="intent_system", level=2, description="故障码查询"),
+            
+            # 2级标签 - 代码类下的子标签
+            Label(label_name="ST代码", label_code="intent_label_201", parent_label_code="intent_label_002", system_code="intent_system", level=2, description="ST语言代码"),
+            Label(label_name="JS代码", label_code="intent_label_202", parent_label_code="intent_label_002", system_code="intent_system", level=2, description="JavaScript代码"),
+            Label(label_name="其他语言代码", label_code="intent_label_203", parent_label_code="intent_label_002", system_code="intent_system", level=2, description="其他编程语言代码"),
+            
+            # 3级标签 - 其他知识问答下的子标签
+            Label(label_name="产品查询", label_code="intent_label_10101", parent_label_code="intent_label_101", system_code="intent_system", level=3, description="产品信息查询"),
+            
+            # ========== 产品实体体系标签 (前缀: entity_label_) ==========
+            Label(label_name='产品线', label_code='entity_label_001', system_code='product_entity_system', level=1, description='产品线分类'),
+            Label(label_name="故障码", label_code="entity_label_002", system_code="product_entity_system", level=1, description='故障码信息'),
+            Label(label_name="指令信息", label_code="entity_label_003", system_code="product_entity_system", level=1, description='指令相关信息'),
+            Label(label_name='产品系列', label_code='entity_label_101', parent_label_code='entity_label_001', system_code='product_entity_system', level=2, description='产品系列分类'),
+            Label(label_name='产品型号', label_code='entity_label_10101', parent_label_code='entity_label_101', system_code='product_entity_system', level=3, description='具体产品型号'),
+            Label(label_name='产品规格', label_code='entity_label_1010101', parent_label_code='entity_label_10101', system_code='product_entity_system', level=4, description='产品规格参数'),
         ]
         db.add_all(labels)
         db.commit()
 
-        # 3. 插入实体 (Item) 及其同义词
+        # 3. 插入实体 (Item) 及其同义词 (前缀: item_code_)
         print("  - 正在插入 Item...")
         items = [
-            Item(item_name='伺服', item_code='servo', label_code='product_line'),
-            Item(item_name='PLC', item_code='plc', label_code='product_line'),
-            Item(item_name='SV660系列', item_code='sv660_series', parent_item_code='servo', label_code='product_series'),
-            Item(item_name='SV660A', item_code='sv660a', parent_item_code='sv660_series', label_code='product_model'),
-            Item(item_name='SV660N', item_code='sv660n', parent_item_code='sv660_series', label_code='product_model', synonyms=[
-                ItemSynonym(synonym="SV660N通用伺服")
+            Item(item_name='伺服', item_code='item_code_001', label_code='entity_label_001', description='伺服产品线'),
+            Item(item_name='PLC', item_code='item_code_002', label_code='entity_label_001', description='PLC产品线'),
+            Item(item_name='SV660系列', item_code='item_code_101', parent_item_code='item_code_001', label_code='entity_label_101', description='SV660伺服系列'),
+            Item(item_name='SV660A', item_code='item_code_10101', parent_item_code='item_code_101', label_code='entity_label_10101', description='SV660A型号'),
+            Item(item_name='SV660N', item_code='item_code_10102', parent_item_code='item_code_101', label_code='entity_label_10101', description='SV660N通用伺服', synonyms=[
+                ItemSynonym(synonym="SV660N通用伺服"),
+                ItemSynonym(synonym="SV660N")
             ]),
-            Item(item_name='SV660NS2R8', item_code='sv660ns2r8', parent_item_code='sv660n', label_code='product_spec'),
-            Item(item_name='SV660NS3R6', item_code='sv660ns3r6', parent_item_code='sv660n', label_code='product_spec'),
+            Item(item_name='SV660NS2R8', item_code='item_code_1010201', parent_item_code='item_code_10102', label_code='entity_label_1010101', description='SV660NS2R8规格'),
+            Item(item_name='SV660NS3R6', item_code='item_code_1010202', parent_item_code='item_code_10102', label_code='entity_label_1010101', description='SV660NS3R6规格'),
         ]
         db.add_all(items)
         db.commit()
@@ -105,18 +126,45 @@ def init_database():
         # 4. 插入意图规则 (IntentRule)
         print("  - 正在插入 IntentRule...")
         rules = [
+            # 故障码类规则
             IntentRule(
-                rule_code="fault_query_keyword_1",
+                rule_code="intent_rule_001",
                 rule_type="keyword",
-                rule_entity="故障,报警,错误代码",
-                label_code="fault_code_query",
+                rule_entity="故障,报警,错误代码,故障码",
+                label_code="intent_label_104",
+                is_active=True
             ),
             IntentRule(
-                rule_code="fault_query_expr_1",
+                rule_code="intent_rule_002",
                 rule_type="expression",
                 rule_entity="{产品型号}报{故障码}",
-                label_code="fault_code_query",
-            )
+                label_code="intent_label_104",
+                is_active=True
+            ),
+            # 产品查询规则
+            IntentRule(
+                rule_code="intent_rule_003",
+                rule_type="keyword",
+                rule_entity="产品,型号,规格,参数",
+                label_code="intent_label_10101",
+                is_active=True
+            ),
+            # ST代码规则
+            IntentRule(
+                rule_code="intent_rule_004",
+                rule_type="keyword",
+                rule_entity="ST代码,ST语言,结构化文本",
+                label_code="intent_label_201",
+                is_active=True
+            ),
+            # JS代码规则
+            IntentRule(
+                rule_code="intent_rule_005",
+                rule_type="keyword",
+                rule_entity="JavaScript,JS代码,前端代码",
+                label_code="intent_label_202",
+                is_active=True
+            ),
         ]
         db.add_all(rules)
         db.commit()

@@ -35,6 +35,18 @@ class LabelSystemAPI {
     }
 
     /**
+     * 标签体系管理API
+     */
+    async getTagSystems(params = {}) {
+        const queryString = new URLSearchParams(params).toString();
+        return this.request(`/systems?${queryString}`);
+    }
+
+    async getTagSystemByCode(systemCode) {
+        return this.request(`/systems/${systemCode}`);
+    }
+
+    /**
      * 标签管理API
      */
     async getLabels(params = {}) {
