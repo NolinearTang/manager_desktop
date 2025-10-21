@@ -128,7 +128,7 @@ def init_database():
             Item(item_name='SV660A', item_code='item_code_10101', parent_item_code='item_code_101', label_code='entity_label_10101', description='SV660A型号'),
             Item(item_name='SV660N', item_code='item_code_10102', parent_item_code='item_code_101', label_code='entity_label_10101', description='SV660N通用伺服', synonyms=[
                 ItemSynonym(synonym="SV660N通用伺服"),
-                ItemSynonym(synonym="SV660N")
+                ItemSynonym(synonym="sv660n")
             ]),
             Item(item_name='SV660NS2R8', item_code='item_code_1010201', parent_item_code='item_code_10102', label_code='entity_label_1010101', description='SV660NS2R8规格'),
             Item(item_name='SV660NS3R6', item_code='item_code_1010202', parent_item_code='item_code_10102', label_code='entity_label_1010101', description='SV660NS3R6规格'),
