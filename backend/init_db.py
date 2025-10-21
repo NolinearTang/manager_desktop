@@ -35,8 +35,8 @@ def init_database():
         # 1. 插入标签体系 (TagSystem)
         print("  - 正在插入 TagSystem...")
         tag_systems = [
-            TagSystem(system_name="产品实体体系", system_code="product_entity_system", system_type="entity"),
-            TagSystem(system_name="客户意图体系", system_code="intent_system", system_type="intent"),
+            TagSystem(system_name="汇川产品实体体系", system_code="product_entity_system", system_type="entity"),
+            TagSystem(system_name="知识问答意图体系", system_code="intent_system", system_type="intent"),
         ]
         db.add_all(tag_systems)
         db.commit()
@@ -49,6 +49,8 @@ def init_database():
             Label(label_name="故障码查询", label_code="fault_code_query", parent_label_code="knowledge_qa", system_code="intent_system", level=2),
             # 产品实体体系
             Label(label_name='产品线', label_code='product_line', system_code='product_entity_system', level=1),
+            Label(label_name="故障码", label_code="error_code", system_code="product_entity_system", level=1),
+            Label(label_name="指令信息", label_code="instruct_code", system_code="product_entity_system", level=1),
             Label(label_name='产品系列', label_code='product_series', parent_label_code='product_line', system_code='product_entity_system', level=2),
             Label(label_name='产品型号', label_code='product_model', parent_label_code='product_series', system_code='product_entity_system', level=3),
             Label(label_name='产品规格', label_code='product_spec', parent_label_code='product_model', system_code='product_entity_system', level=4),
