@@ -95,6 +95,7 @@ def init_database():
             # 3级标签 - 其他知识问答下的子标签
             Label(label_name="产品查询", label_code="intent_label_10101", parent_label_code="intent_label_101", system_code="intent_system", level=3, description="产品信息查询"),
             Label(label_name="价格咨询", label_code="intent_label_10102", parent_label_code="intent_label_101", system_code="intent_system", level=3, description="产品价格咨询"),
+            Label(label_name="产品缺问题", label_code="intent_label_10103", parent_label_code="intent_label_101", system_code="intent_system", level=3, description="产品缺少问题描述"),
             
             # ========== 产品实体体系标签 (前缀: entity_label_) ==========
             Label(label_name='产品线', label_code='entity_label_001', system_code='product_entity_system', level=1, description='产品线分类'),
@@ -147,6 +148,20 @@ def init_database():
                 rule_code="intent_rule_003",
                 rule_type="keyword_whitelist",
                 rule_entity="产品,型号,规格,参数",
+                label_code="intent_label_10101",
+                is_active=True
+            ),
+            IntentRule(
+                rule_code="intent_rule_016",
+                rule_type="expression",
+                rule_entity="${产品规格}输入电压是多少",
+                label_code="intent_label_10101",
+                is_active=True
+            ),
+            IntentRule(
+                rule_code="intent_rule_017",
+                rule_type="expression",
+                rule_entity="${产品型号}有哪些规格",
                 label_code="intent_label_10101",
                 is_active=True
             ),
@@ -238,6 +253,21 @@ def init_database():
                 rule_type="keyword_blacklist",
                 rule_entity="价格贵",
                 label_code="intent_label_10102",
+                is_active=True
+            ),
+            # 产品缺问题规则 - 表达式类型
+            IntentRule(
+                rule_code="intent_rule_018",
+                rule_type="expression",
+                rule_entity="${产品规格}",
+                label_code="intent_label_10103",
+                is_active=True
+            ),
+            IntentRule(
+                rule_code="intent_rule_019",
+                rule_type="expression",
+                rule_entity="${产品型号}",
+                label_code="intent_label_10103",
                 is_active=True
             ),
         ]
