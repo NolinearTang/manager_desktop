@@ -88,6 +88,7 @@ class ItemResponse(ItemBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    parent_item_name: Optional[str] = None
     synonyms: List[ItemSynonymResponse] = []
     class Config: from_attributes = True
 
