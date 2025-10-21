@@ -88,9 +88,16 @@ def init_database():
             Label(label_name="故障码类", label_code="intent_label_104", parent_label_code="intent_label_001", system_code="intent_system", level=2, description="故障码查询"),
             
             # 2级标签 - 代码类下的子标签
-            Label(label_name="ST代码", label_code="intent_label_201", parent_label_code="intent_label_002", system_code="intent_system", level=2, description="ST语言代码"),
-            Label(label_name="JS代码", label_code="intent_label_202", parent_label_code="intent_label_002", system_code="intent_system", level=2, description="JavaScript代码"),
-            Label(label_name="其他语言代码", label_code="intent_label_203", parent_label_code="intent_label_002", system_code="intent_system", level=2, description="其他编程语言代码"),
+            Label(label_name="写代码", label_code="intent_label_201", parent_label_code="intent_label_002", system_code="intent_system", level=2, description="编写代码相关意图"),
+            Label(label_name="代码类问答", label_code="intent_label_202", parent_label_code="intent_label_002", system_code="intent_system", level=2, description="代码相关问答"),
+            
+            # 3级标签 - 写代码下的子标签
+            Label(label_name="写ST代码", label_code="intent_label_20101", parent_label_code="intent_label_201", system_code="intent_system", level=3, description="编写ST代码"),
+            
+            # 3级标签 - 代码类问答下的子标签
+            Label(label_name="ST代码", label_code="intent_label_20201", parent_label_code="intent_label_202", system_code="intent_system", level=3, description="ST语言代码问答"),
+            Label(label_name="JS代码", label_code="intent_label_20202", parent_label_code="intent_label_202", system_code="intent_system", level=3, description="JavaScript代码问答"),
+            Label(label_name="其他语言代码", label_code="intent_label_20203", parent_label_code="intent_label_202", system_code="intent_system", level=3, description="其他编程语言代码问答"),
             
             # 3级标签 - 其他知识问答下的子标签
             Label(label_name="产品查询", label_code="intent_label_10101", parent_label_code="intent_label_101", system_code="intent_system", level=3, description="产品信息查询"),
@@ -101,6 +108,10 @@ def init_database():
             Label(label_name='产品线', label_code='entity_label_001', system_code='product_entity_system', level=1, description='产品线分类'),
             Label(label_name="故障码", label_code="entity_label_002", system_code="product_entity_system", level=1, description='故障码信息'),
             Label(label_name="指令信息", label_code="entity_label_003", system_code="product_entity_system", level=1, description='指令相关信息'),
+            
+            # 2级标签 - 指令信息下的子标签
+            Label(label_name="ST代码指令", label_code="entity_label_301", parent_label_code="entity_label_003", system_code="product_entity_system", level=2, description='ST语言代码指令'),
+            
             Label(label_name='产品系列', label_code='entity_label_101', parent_label_code='entity_label_001', system_code='product_entity_system', level=2, description='产品系列分类'),
             Label(label_name='产品型号', label_code='entity_label_10101', parent_label_code='entity_label_101', system_code='product_entity_system', level=3, description='具体产品型号'),
             Label(label_name='产品规格', label_code='entity_label_1010101', parent_label_code='entity_label_10101', system_code='product_entity_system', level=4, description='产品规格参数'),
@@ -121,6 +132,23 @@ def init_database():
             ]),
             Item(item_name='SV660NS2R8', item_code='item_code_1010201', parent_item_code='item_code_10102', label_code='entity_label_1010101', description='SV660NS2R8规格'),
             Item(item_name='SV660NS3R6', item_code='item_code_1010202', parent_item_code='item_code_10102', label_code='entity_label_1010101', description='SV660NS3R6规格'),
+            
+            # ST代码指令实体（工控领域实际指令）
+            Item(item_name='TON', item_code='item_code_301', label_code='entity_label_301', description='接通延时定时器'),
+            Item(item_name='TOF', item_code='item_code_302', label_code='entity_label_301', description='断开延时定时器'),
+            Item(item_name='TP', item_code='item_code_303', label_code='entity_label_301', description='脉冲定时器'),
+            Item(item_name='CTU', item_code='item_code_304', label_code='entity_label_301', description='加计数器'),
+            Item(item_name='CTD', item_code='item_code_305', label_code='entity_label_301', description='减计数器'),
+            Item(item_name='CTUD', item_code='item_code_306', label_code='entity_label_301', description='加减计数器'),
+            Item(item_name='R_TRIG', item_code='item_code_307', label_code='entity_label_301', description='上升沿触发'),
+            Item(item_name='F_TRIG', item_code='item_code_308', label_code='entity_label_301', description='下降沿触发'),
+            Item(item_name='SR', item_code='item_code_309', label_code='entity_label_301', description='置位优先双稳态'),
+            Item(item_name='RS', item_code='item_code_310', label_code='entity_label_301', description='复位优先双稳态'),
+            Item(item_name='MOVE', item_code='item_code_311', label_code='entity_label_301', description='数据传送'),
+            Item(item_name='ADD', item_code='item_code_312', label_code='entity_label_301', description='加法运算'),
+            Item(item_name='SUB', item_code='item_code_313', label_code='entity_label_301', description='减法运算'),
+            Item(item_name='MUL', item_code='item_code_314', label_code='entity_label_301', description='乘法运算'),
+            Item(item_name='DIV', item_code='item_code_315', label_code='entity_label_301', description='除法运算'),
         ]
         db.add_all(items)
         db.commit()
@@ -165,20 +193,28 @@ def init_database():
                 label_code="intent_label_10101",
                 is_active=True
             ),
-            # ST代码规则
+            # ST代码问答规则
             IntentRule(
                 rule_code="intent_rule_004",
                 rule_type="keyword_whitelist",
                 rule_entity="ST代码,ST语言,结构化文本",
-                label_code="intent_label_201",
+                label_code="intent_label_20201",
                 is_active=True
             ),
-            # JS代码规则
+            # JS代码问答规则
             IntentRule(
                 rule_code="intent_rule_005",
                 rule_type="keyword_whitelist",
                 rule_entity="JavaScript,JS代码,前端代码",
-                label_code="intent_label_202",
+                label_code="intent_label_20202",
+                is_active=True
+            ),
+            # 写ST代码规则
+            IntentRule(
+                rule_code="intent_rule_020",
+                rule_type="expression",
+                rule_entity="写一个${ST代码指令}的程序",
+                label_code="intent_label_20101",
                 is_active=True
             ),
             # 价格咨询规则 - 表达式类型（使用${实体标签}引用）
