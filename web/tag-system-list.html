@@ -7,6 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     
+    <!-- 配置文件 -->
+    <script src="js/config.js"></script>
+    
     <!-- Tailwind配置 -->
     <script>
         tailwind.config = {
@@ -235,7 +238,8 @@
     <script>
         // 标签体系数据
         let tagSystems = [];
-        const API_BASE_URL = 'http://localhost:8000/api/v1';
+        // 使用相对路径，自动适配当前域名
+        const API_BASE_URL = '/api/v1';
 
         let currentFilter = 'all';
         let currentSearchTerm = '';

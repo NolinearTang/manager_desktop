@@ -97,6 +97,38 @@ manager_desktop/
    - API文档: http://localhost:8000/docs
    - 前端页面: http://localhost:8000/static/tag-system-list.html
 
+## 🌐 公网部署
+
+本系统支持公网部署，前端已配置为使用相对路径，自动适配当前域名。
+
+### 快速部署
+
+1. **前端配置**
+   - 前端已使用相对路径 `/api/v1`，无需修改即可适配任何域名
+   - 如需自定义 API 地址，可修改 `web/js/config.js`
+
+2. **后端配置**
+   - 确保后端监听 `0.0.0.0:8000`（默认已配置）
+   - 配置环境变量 `backend/.env`
+
+3. **使用 Nginx 反向代理**（推荐）
+   ```bash
+   # 复制配置文件
+   cp nginx.conf.example /etc/nginx/sites-available/label-system
+   
+   # 修改配置文件中的路径和域名
+   # 创建软链接
+   ln -s /etc/nginx/sites-available/label-system /etc/nginx/sites-enabled/
+   
+   # 测试配置
+   nginx -t
+   
+   # 重启 Nginx
+   systemctl restart nginx
+   ```
+
+详细部署说明请参考 [DEPLOYMENT.md](DEPLOYMENT.md)
+
 ## 📋 功能特性
 
 ### 标签管理

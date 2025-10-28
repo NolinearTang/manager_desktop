@@ -2,8 +2,9 @@
  * API 客户端 - 前后端数据连接
  */
 class LabelSystemAPI {
-    constructor(baseURL = 'http://localhost:8000/api/v1') {
-        this.baseURL = baseURL;
+    constructor(baseURL = null) {
+        // 优先使用传入的 baseURL，其次使用环境变量，最后使用相对路径
+        this.baseURL = baseURL || window.API_BASE_URL || '/api/v1';
     }
 
     /**
