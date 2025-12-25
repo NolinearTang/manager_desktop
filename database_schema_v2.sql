@@ -70,8 +70,8 @@ CREATE TABLE item_synonyms (
 CREATE TABLE intent_rules (
     id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
     rule_code VARCHAR(50) NOT NULL UNIQUE COMMENT '规则编码',
-    rule_type VARCHAR(50) NOT NULL COMMENT '规则类型 (例如: keyword, expression)',
-    rule_entity TEXT NOT NULL COMMENT '规则实体 (规则的具体内容)',
+    rule_type VARCHAR(50) NOT NULL COMMENT '规则类型 (例如: keyword_whitelist, keyword_blacklist, expression, sentence)',
+    rule_name TEXT NOT NULL COMMENT '规则名称 (规则的具体内容)',
     label_code VARCHAR(50) NOT NULL COMMENT '关联的意图标签编码',
     is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '是否启用',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
